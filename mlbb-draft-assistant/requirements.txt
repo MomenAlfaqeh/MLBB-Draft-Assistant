@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+opencv-python
+numpy
+requests
+beautifulsoup4
+lxml
+schedule
+pillow
+pytest
+httpx
+pydantic

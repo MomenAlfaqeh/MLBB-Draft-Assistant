@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>MLBB Draft Assistant</title>
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#00ff41">
@@ -13,217 +13,281 @@
             color: #00ff41;
             font-family: 'Courier New', monospace;
             min-height: 100vh;
-            padding: 20px;
-            max-width: 480px;
+            padding: 10px;
+            max-width: 500px;
             margin: 0 auto;
+            font-size: 13px;
         }
+        
+        /* HEADER */
         .header {
             text-align: center;
-            padding: 20px 0;
-            border-bottom: 2px solid #00ff41;
-            margin-bottom: 20px;
+            padding: 15px 10px;
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+            background: rgba(0, 0, 0, 0.85);
+        }
+        .header h1 {
+            font-size: 1.2em;
+            letter-spacing: 3px;
             text-shadow: 0 0 10px #00ff41;
         }
-        .header h1 { font-size: 1.5em; letter-spacing: 3px; }
-        .header p { font-size: 0.8em; opacity: 0.7; letter-spacing: 2px; }
-        .section {
-            background: #1a1a2e;
+        .header .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
             border: 1px solid #00ff41;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            cursor: pointer;
+            padding: 2px 8px;
         }
+        
+        /* SECTION TITLES */
         .section-title {
-            font-size: 0.9em;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            font-size: 0.75em;
+            padding: 8px 0;
             border-bottom: 1px solid #00ff41;
-            padding-bottom: 5px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-align: center;
         }
-        /* Ban slots mobile fix */
-        .ban-slots {
+        
+        /* BANS SECTION */
+        .bans-section {
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+        .ban-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            width: 100%;
-            box-sizing: border-box;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 5px;
         }
-
-        .ban-slot input {
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .card {
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-
-        @media (min-width: 600px) {
-            .ban-slots {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-        input[type="text"] {
-            flex: 1;
+        .ban-row:last-child { margin-bottom: 0; }
+        .ban-input {
             background: #0a0a0a;
             border: 1px solid #00ff41;
             color: #00ff41;
-            padding: 8px;
-            border-radius: 4px;
+            padding: 6px 4px;
+            border-radius: 3px;
             font-family: 'Courier New', monospace;
-            font-size: 0.85em;
+            font-size: 0.7em;
+            text-align: center;
             outline: none;
-            transition: box-shadow 0.3s;
+            width: 100%;
         }
-        input[type="text"]:focus {
-            box-shadow: 0 0 10px #00ff41;
+        .ban-input:focus { box-shadow: 0 0 8px #00ff41; }
+        .ban-input::placeholder { color: #00ff4150; font-size: 0.9em; }
+        
+        /* PICKS INPUT SECTION */
+        .picks-input-section {
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
         }
-        input[type="text"]::placeholder {
-            color: #00ff4150;
-        }
-        .picks-container {
+        .picks-row {
             display: flex;
-            gap: 15px;
+            gap: 10px;
+            margin-bottom: 8px;
         }
         .picks-column {
             flex: 1;
         }
-        .picks-column input {
-            width: 100%;
-            margin-bottom: 8px;
+        .picks-column .col-title {
+            font-size: 0.65em;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-align: center;
         }
+        .pick-input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7em;
+            text-align: center;
+            outline: none;
+            margin-bottom: 4px;
+        }
+        .pick-input:focus { box-shadow: 0 0 8px #00ff41; }
+        .pick-input::placeholder { color: #00ff4150; }
+        
+        /* LANE RECOMMENDATIONS */
+        .lanes-section {
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+        .lane-row {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #00ff4130;
+        }
+        .lane-row:last-child { border-bottom: none; }
+        .lane-label {
+            font-size: 0.65em;
+            letter-spacing: 1px;
+            min-width: 70px;
+            padding: 4px 6px;
+            border-radius: 3px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .lane-EXP { background: #ff6b35; color: #000; }
+        .lane-JUNGLE { background: #8b5cf6; color: #fff; }
+        .lane-MID { background: #3b82f6; color: #fff; }
+        .lane-GOLD { background: #eab308; color: #000; }
+        .lane-ROAM { background: #10b981; color: #000; }
+        
+        .lane-heroes {
+            flex: 1;
+            display: flex;
+            gap: 5px;
+            margin-left: 8px;
+        }
+        .lane-hero-card {
+            flex: 1;
+            background: #0a0a0a;
+            border: 1px solid #00ff41;
+            border-radius: 3px;
+            padding: 4px;
+            text-align: center;
+        }
+        .lane-hero-name {
+            font-size: 0.6em;
+            margin-bottom: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .lane-hero-bar {
+            height: 8px;
+            background: #0a0a0a;
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .lane-hero-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff41, #00cc33);
+            transition: width 0.8s ease-out;
+            width: 0%;
+        }
+        
+        /* ANALYZE BUTTON */
         .analyze-btn {
             width: 100%;
-            padding: 15px;
-            background: #0a0a0a;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.85);
             border: 2px solid #00ff41;
             color: #00ff41;
             font-family: 'Courier New', monospace;
-            font-size: 1em;
+            font-size: 0.85em;
             font-weight: bold;
             letter-spacing: 2px;
-            border-radius: 8px;
+            border-radius: 4px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-bottom: 10px;
             transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
         }
         .analyze-btn:hover {
             background: #00ff41;
             color: #0a0a0a;
-            box-shadow: 0 0 30px #00ff41;
+            box-shadow: 0 0 25px #00ff41;
         }
         .analyze-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        .results {
-            display: none;
-            margin-top: 20px;
-        }
-        .results.visible {
-            display: block;
-            animation: fadeIn 0.5s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .hero-card {
-            background: #1a1a2e;
+        
+        /* MATCHUP PROBABILITY */
+        .matchup-section {
             border: 1px solid #00ff41;
-            border-radius: 8px;
-            padding: 15px;
+            border-radius: 4px;
+            padding: 10px;
             margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.85);
             box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
         }
-        .hero-name {
-            font-size: 1.3em;
-            color: #00ff41;
-            margin-bottom: 8px;
-            text-shadow: 0 0 5px #00ff41;
-        }
-        .role-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-        .role-Tank { background: #4a5568; color: #fff; }
-        .role-Fighter { background: #e53e3e; color: #fff; }
-        .role-Assassin { background: #805ad5; color: #fff; }
-        .role-Marksman { background: #38a169; color: #fff; }
-        .role-Mage { background: #3182ce; color: #fff; }
-        .role-Support { background: #d69e2e; color: #fff; }
-        .score-bar {
-            width: 100%;
-            height: 20px;
-            background: #0a0a0a;
-            border: 1px solid #00ff41;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        .score-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ff41, #00cc33);
-            transition: width 1s ease-out;
-            box-shadow: 0 0 10px #00ff41;
-        }
-        .breakdown {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px;
-            font-size: 0.75em;
-            margin-top: 8px;
-            opacity: 0.8;
-        }
-        .breakdown-item { padding: 3px 0; }
-        .matchup-section {
-            margin-top: 20px;
-            text-align: center;
-        }
         .matchup-title {
-            font-size: 0.9em;
-            margin-bottom: 15px;
-            text-transform: uppercase;
+            font-size: 0.75em;
             letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 10px;
         }
-        .win-progress {
-            width: 100%;
-            height: 30px;
-            background: #e53e3e;
-            border-radius: 15px;
-            overflow: hidden;
+        .matchup-bar {
+            height: 25px;
+            display: flex;
             border: 1px solid #00ff41;
+            border-radius: 4px;
+            overflow: hidden;
         }
-        .win-fill {
-            height: 100%;
+        .matchup-ally {
             background: linear-gradient(90deg, #00ff41, #00cc33);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.7em;
             font-weight: bold;
-            color: #0a0a0a;
+            color: #000;
             transition: width 1s ease-out;
         }
-        .spinner {
-            display: none;
-            text-align: center;
-            padding: 20px;
+        .matchup-enemy {
+            background: linear-gradient(90deg, #cc3333, #ff4444);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: #fff;
+            transition: width 1s ease-out;
         }
-        .spinner.visible { display: block; }
-        .spinner::after {
-            content: '';
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid #1a1a2e;
+        
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.6em;
+            opacity: 0.5;
+            letter-spacing: 1px;
+        }
+        
+        /* SPINNER */
+        .spinner-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .spinner-overlay.visible { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #0a0a0a;
             border-top: 4px solid #00ff41;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -232,80 +296,115 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* DATALIST */
+        .visually-hidden { position: absolute; overflow: hidden; height: 0; width: 0; }
     </style>
 </head>
 <body>
+    <!-- HEADER -->
     <div class="header">
-        <h1>MLBB DRAFT ASSISTANT</h1>
-        <p>AI LINEUP DRAFTER</p>
+        <button class="close-btn" onclick="window.close()">[X]</button>
+        <h1>[ AI LINEUP DRAFTER ]</h1>
     </div>
-
-    <div class="section card">
+    
+    <!-- BANS SECTION -->
+    <div class="bans-section">
         <div class="section-title">ALLY BANS</div>
-        <div class="ban-slots">
-            <div class="ban-slot"><input type="text" placeholder="Hero 1" id="ally-ban-1"></div>
-            <div class="ban-slot"><input type="text" placeholder="Hero 2" id="ally-ban-2"></div>
-            <div class="ban-slot"><input type="text" placeholder="Hero 3" id="ally-ban-3"></div>
-            <div class="ban-slot"><input type="text" placeholder="Hero 4" id="ally-ban-4"></div>
+        <div class="ban-row">
+            <input type="text" class="ban-input" placeholder="H1" id="ally-ban-1" list="heroes-list">
+            <input type="text" class="ban-input" placeholder="H2" id="ally-ban-2" list="heroes-list">
+            <input type="text" class="ban-input" placeholder="H3" id="ally-ban-3" list="heroes-list">
+            <input type="text" class="ban-input" placeholder="H4" id="ally-ban-4" list="heroes-list">
+        </div>
+        <div class="section-title" style="margin-top: 10px;">ENEMY BANS</div>
+        <div class="ban-row">
+            <input type="text" class="ban-input" placeholder="H1" id="enemy-ban-1" list="heroes-list">
+            <input type="text" class="ban-input" placeholder="H2" id="enemy-ban-2" list="heroes-list">
+            <input type="text" class="ban-input" placeholder="H3" id="enemy-ban-3" list="heroes-list">
+            <input type="text" class="ban-input" placeholder="H4" id="enemy-ban-4" list="heroes-list">
         </div>
     </div>
-
-    <div class="section card">
-        <div class="section-title">ENEMY BANS</div>
-        <div class="ban-slots">
-            <div class="ban-slot"><input type="text" placeholder="Hero 1" id="enemy-ban-1"></div>
-            <div class="ban-slot"><input type="text" placeholder="Hero 2" id="enemy-ban-2"></div>
-            <div class="ban-slot"><input type="text" placeholder="Hero 3" id="enemy-ban-3"></div>
-            <div class="ban-slot"><input type="text" placeholder="Hero 4" id="enemy-ban-4"></div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="picks-container">
+    
+    <!-- PICKS INPUT SECTION -->
+    <div class="picks-input-section">
+        <div class="picks-row">
             <div class="picks-column">
-                <div class="section-title">ALLY PICKS</div>
-                <input type="text" placeholder="Pick 1" id="ally-pick-1">
-                <input type="text" placeholder="Pick 2" id="ally-pick-2">
-                <input type="text" placeholder="Pick 3" id="ally-pick-3">
-                <input type="text" placeholder="Pick 4" id="ally-pick-4">
-                <input type="text" placeholder="Pick 5" id="ally-pick-5">
+                <div class="col-title">ALLY PICKS</div>
+                <input type="text" class="pick-input" placeholder="1" id="ally-pick-1" list="heroes-list">
+                <input type="text" class="pick-input" placeholder="2" id="ally-pick-2" list="heroes-list">
+                <input type="text" class="pick-input" placeholder="3" id="ally-pick-3" list="heroes-list">
+                <input type="text" class="pick-input" placeholder="4" id="ally-pick-4" list="heroes-list">
+                <input type="text" class="pick-input" placeholder="5" id="ally-pick-5" list="heroes-list">
             </div>
             <div class="picks-column">
-                <div class="section-title">ENEMY PICKS</div>
-                <input type="text" placeholder="Pick 1" id="enemy-pick-1">
-                <input type="text" placeholder="Pick 2" id="enemy-pick-2">
-                <input type="text" placeholder="Pick 3" id="enemy-pick-3">
-                <input type="text" placeholder="Pick 4" id="enemy-pick-4">
-                <input type="text" placeholder="Pick 5" id="enemy-pick-5">
+                <div class="col-title">ENEMY PICKS</div>
+                <input type="text" class="pick-input" placeholder="1" id="enemy-pick-1" list="heroes-list">
+                <input type="text" class="pick-input" placeholder="2" id="enemy-pick-2" list="heroes-list">
+                <input type="text" class="pick-input" placeholder="3" id="enemy-pick-3" list="heroes-list">
+                <input type="text" class="pick-input" placeholder="4" id="enemy-pick-4" list="heroes-list">
+                <input type="text" class="pick-input" placeholder="5" id="enemy-pick-5" list="heroes-list">
             </div>
         </div>
     </div>
-
+    
+    <!-- ANALYZE BUTTON -->
     <button class="analyze-btn" id="analyze-btn" onclick="analyzeDraft()">>> ANALYZE DRAFT <<</button>
-
-    <div class="spinner" id="spinner"></div>
-
-    <div class="results" id="results">
-        <div class="section">
-            <div class="section-title">>> OPTIMAL PICK VECTORS <<</div>
-            <div id="hero-recommendations"></div>
-        </div>
-
-        <div class="section matchup-section">
-            <div class="matchup-title">>> MATCHUP PROBABILITY <<</div>
-            <div class="win-progress">
-                <div class="win-fill" id="win-bar">0%</div>
-            </div>
+    
+    <!-- LANE RECOMMENDATIONS -->
+    <div class="lanes-section">
+        <div class="section-title">>> OPTIMAL PICK VECTORS <<</div>
+        <div id="lanes-container">
+            <!-- Lanes will be populated here -->
         </div>
     </div>
-
+    
+    <!-- MATCHUP PROBABILITY -->
+    <div class="matchup-section">
+        <div class="matchup-title">>> MATCHUP PROBABILITY <<</div>
+        <div class="matchup-bar" id="matchup-bar">
+            <div class="matchup-ally" id="matchup-ally" style="width: 50%;">0%</div>
+            <div class="matchup-enemy" id="matchup-enemy" style="width: 50%;">0%</div>
+        </div>
+    </div>
+    
+    <!-- FOOTER -->
+    <div class="footer">DOUBLE-CLICK TEXT TO CORRECT ERROR</div>
+    
+    <!-- DATALIST FOR AUTOCOMPLETE -->
+    <datalist id="heroes-list"></datalist>
+    
+    <!-- SPINNER OVERLAY -->
+    <div class="spinner-overlay" id="spinner">
+        <div class="spinner"></div>
+    </div>
+    
     <script>
         const API_URL = window.location.origin;
-
+        let heroNames = [];
+        
+        // Load hero names for autocomplete
+        async function loadHeroes() {
+            try {
+                const response = await fetch(`${API_URL}/heroes`);
+                if (response.ok) {
+                    const heroes = await response.json();
+                    heroNames = heroes.map(h => h.name);
+                    const datalist = document.getElementById('heroes-list');
+                    datalist.innerHTML = '';
+                    heroNames.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        datalist.appendChild(option);
+                    });
+                }
+            } catch (e) { console.error('Failed to load heroes:', e); }
+        }
+        
         function getInputValue(id) {
             return document.getElementById(id).value.trim();
         }
-
+        
         function getAllInputs(prefix, count) {
             const results = [];
             for (let i = 1; i <= count; i++) {
@@ -314,31 +413,24 @@
             }
             return results;
         }
-
+        
         function loadDraftFromStorage() {
             const saved = localStorage.getItem('mlbb-last-draft');
             if (!saved) return;
             try {
                 const draft = JSON.parse(saved);
-                if (draft.allyBans) draft.allyBans.forEach((h, i) => {
-                    if (document.getElementById(`ally-ban-${i+1}`)) 
-                        document.getElementById(`ally-ban-${i+1}`).value = h;
-                });
-                if (draft.enemyBans) draft.enemyBans.forEach((h, i) => {
-                    if (document.getElementById(`enemy-ban-${i+1}`)) 
-                        document.getElementById(`enemy-ban-${i+1}`).value = h;
-                });
-                if (draft.allyPicks) draft.allyPicks.forEach((h, i) => {
-                    if (document.getElementById(`ally-pick-${i+1}`)) 
-                        document.getElementById(`ally-pick-${i+1}`).value = h;
-                });
-                if (draft.enemyPicks) draft.enemyPicks.forEach((h, i) => {
-                    if (document.getElementById(`enemy-pick-${i+1}`)) 
-                        document.getElementById(`enemy-pick-${i+1}`).value = h;
+                ['allyBans', 'enemyBans', 'allyPicks', 'enemyPicks'].forEach(key => {
+                    if (draft[key]) {
+                        const prefix = key.replace(/([A-Z])/g, '-$1').toLowerCase().replace('--', '-');
+                        draft[key].forEach((h, i) => {
+                            const el = document.getElementById(`${prefix}-${i+1}`);
+                            if (el) el.value = h;
+                        });
+                    }
                 });
             } catch(e) { console.error('Failed to load draft:', e); }
         }
-
+        
         function saveDraftToStorage() {
             const draft = {
                 allyBans: getAllInputs('ally-ban', 4),
@@ -348,75 +440,107 @@
             };
             localStorage.setItem('mlbb-last-draft', JSON.stringify(draft));
         }
-
-        function getRoleBadgeClass(role) {
-            const roles = ['Tank', 'Fighter', 'Assassin', 'Marksman', 'Mage', 'Support'];
-            for (const r of roles) {
-                if (role.toLowerCase().includes(r.toLowerCase())) return `role-${r}`;
-            }
-            return 'role-Mage';
+        
+        function getLaneClass(lane) {
+            if (lane.includes('EXP')) return 'lane-EXP';
+            if (lane.includes('JUNGLE')) return 'lane-JUNGLE';
+            if (lane.includes('MID')) return 'lane-MID';
+            if (lane.includes('GOLD')) return 'lane-GOLD';
+            if (lane.includes('ROAM')) return 'lane-ROAM';
+            return 'lane-EXP';
         }
-
-        function displayResults(data) {
-            const container = document.getElementById('hero-recommendations');
+        
+        function getLaneShort(lane) {
+            if (lane.includes('EXP')) return 'EXP';
+            if (lane.includes('JUNGLE')) return 'JUNGLE';
+            if (lane.includes('MID')) return 'MID';
+            if (lane.includes('GOLD')) return 'GOLD';
+            if (lane.includes('ROAM')) return 'ROAM';
+            return lane.split(' ')[0];
+        }
+        
+        function displayLaneRecommendations(laneRecs) {
+            const container = document.getElementById('lanes-container');
             container.innerHTML = '';
-
-            data.forEach((hero, idx) => {
-                const card = document.createElement('div');
-                card.className = 'hero-card';
-                card.style.animationDelay = `${idx * 0.1}s`;
-
-                const role = hero.breakdown?.role || 'Mage';
-                const score = Math.round(hero.total_score || 0);
-                const breakdown = hero.breakdown || {};
-
-                card.innerHTML = `
-                    <div class="hero-name">${hero.name}</div>
-                    <div class="role-badge ${getRoleBadgeClass(role)}">${role.toUpperCase()}</div>
-                    <div class="score-bar">
-                        <div class="score-fill" style="width: 0%" data-width="${score}%"></div>
-                    </div>
-                    <div class="breakdown">
-                        <div class="breakdown-item">WR: ${(breakdown.win_rate || 0).toFixed(1)}%</div>
-                        <div class="breakdown-item">Counter: ${(breakdown.counter || 0).toFixed(1)}</div>
-                        <div class="breakdown-item">Synergy: ${(breakdown.synergy || 0).toFixed(1)}</div>
-                        <div class="breakdown-item">Comp: ${(breakdown.composition || 0).toFixed(1)}</div>
-                    </div>
-                `;
-                container.appendChild(card);
-
-                setTimeout(() => {
-                    const fill = card.querySelector('.score-fill');
-                    fill.style.width = fill.dataset.width;
-                }, 100 + idx * 100);
+            
+            const laneOrder = ['EXP Lane', 'Jungle', 'Mid', 'Gold Lane', 'Roam/Utility'];
+            
+            laneOrder.forEach(lane => {
+                const recs = laneRecs[lane] || [];
+                if (recs.length === 0) return;
+                
+                const row = document.createElement('div');
+                row.className = 'lane-row';
+                
+                const label = document.createElement('div');
+                label.className = `lane-label ${getLaneClass(lane)}`;
+                label.textContent = getLaneShort(lane);
+                row.appendChild(label);
+                
+                const heroesDiv = document.createElement('div');
+                heroesDiv.className = 'lane-heroes';
+                
+                recs.forEach((hero, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'lane-hero-card';
+                    
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'lane-hero-name';
+                    nameDiv.textContent = hero.name;
+                    card.appendChild(nameDiv);
+                    
+                    const barDiv = document.createElement('div');
+                    barDiv.className = 'lane-hero-bar';
+                    
+                    const fillDiv = document.createElement('div');
+                    fillDiv.className = 'lane-hero-fill';
+                    fillDiv.style.width = '0%';
+                    fillDiv.dataset.width = `${Math.round(hero.total_score * 100)}%`;
+                    barDiv.appendChild(fillDiv);
+                    card.appendChild(barDiv);
+                    
+                    heroesDiv.appendChild(card);
+                    
+                    setTimeout(() => {
+                        fillDiv.style.width = fillDiv.dataset.width;
+                    }, 100 + idx * 100);
+                });
+                
+                row.appendChild(heroesDiv);
+                container.appendChild(row);
             });
-
-            const winChance = data.length > 0 ? Math.round(data[0].total_score || 50) : 50;
-            const winBar = document.getElementById('win-bar');
-            winBar.style.width = '0%';
-            setTimeout(() => {
-                winBar.style.width = winChance + '%';
-                winBar.textContent = winChance + '%';
-            }, 200);
-
-            document.getElementById('results').classList.add('visible');
         }
-
+        
+        function displayMatchupProbability(prob) {
+            const allyBar = document.getElementById('matchup-ally');
+            const enemyBar = document.getElementById('matchup-enemy');
+            const allyPct = Math.round(prob);
+            const enemyPct = 100 - allyPct;
+            
+            allyBar.style.width = '0%';
+            enemyBar.style.width = '0%';
+            
+            setTimeout(() => {
+                allyBar.style.width = allyPct + '%';
+                allyBar.textContent = allyPct + '%';
+                enemyBar.style.width = enemyPct + '%';
+                enemyBar.textContent = enemyPct + '%';
+            }, 200);
+        }
+        
         async function analyzeDraft() {
             const btn = document.getElementById('analyze-btn');
             const spinner = document.getElementById('spinner');
-            const results = document.getElementById('results');
-
+            
             const allyPicks = getAllInputs('ally-pick', 5);
             const enemyPicks = getAllInputs('enemy-pick', 5);
             const banned = [...getAllInputs('ally-ban', 4), ...getAllInputs('enemy-ban', 4)];
-
+            
             saveDraftToStorage();
-
+            
             btn.disabled = true;
             spinner.classList.add('visible');
-            results.classList.remove('visible');
-
+            
             try {
                 const response = await fetch(`${API_URL}/draft/update`, {
                     method: 'POST',
@@ -427,11 +551,17 @@
                         banned: banned
                     })
                 });
-
+                
                 if (!response.ok) throw new Error('Failed to analyze draft');
-
+                
                 const data = await response.json();
-                displayResults(data);
+                
+                if (data.lane_recommendations) {
+                    displayLaneRecommendations(data.lane_recommendations);
+                }
+                if (data.matchup_probability !== undefined) {
+                    displayMatchupProbability(data.matchup_probability);
+                }
             } catch (error) {
                 console.error('Error:', error);
                 alert('Failed to analyze draft. Please check the server.');
@@ -440,9 +570,12 @@
                 spinner.classList.remove('visible');
             }
         }
-
+        
+        // Initialize
         loadDraftFromStorage();
-
+        loadHeroes();
+        
+        // Register Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/static/sw.js')
                 .catch(err => console.log('SW registration failed:', err));

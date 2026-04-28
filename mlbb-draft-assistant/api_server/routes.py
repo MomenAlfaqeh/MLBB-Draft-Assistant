@@ -7,7 +7,7 @@ import os
 # Add project root to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from database.db_manager import DatabaseManager
-from scoring_engine.scorer import get_top_recommendations, HeroScore
+from scoring_engine.scorer import get_top_recommendations, get_recommendations_by_lane, HeroScore
 from vision_engine.hero_detector import HeroDetector
 from config import DB_PATH, SERVER_HOST, SERVER_PORT
 
@@ -49,7 +49,7 @@ async def get_heroes():
             detail=f"Failed to retrieve heroes: {str(e)}"
         )
 
-@router.post("/draft/update", response_model=List[HeroResponse])
+@router.post("/draft/update", response_model=Dict[str, Any])
 async def draft_update(request: DraftRequest):
     """Get hero recommendations based on current draft state"""
     try:
@@ -58,25 +58,51 @@ async def draft_update(request: DraftRequest):
         banned_set = set(request.banned)
         available_heroes = [h for h in all_heroes if h["name"] not in banned_set]
         
-        # Get top recommendations
-        recommendations = get_top_recommendations(
+        # Get top recommendations with matchup probability
+        top_picks, matchup_prob = get_top_recommendations(
             available_heroes=available_heroes,
             enemy_picks=request.enemy_picks,
             ally_picks=request.ally_picks,
             top_n=5
         )
         
+        # Get lane-based recommendations
+        lane_recs = get_recommendations_by_lane(
+            available_heroes=available_heroes,
+            enemy_picks=request.enemy_picks,
+            ally_picks=request.ally_picks,
+            top_n=2
+        )
+        
         # Convert HeroScore objects to dictionaries for response
-        result = []
-        for rec in recommendations:
-            result.append({
+        top_picks_result = []
+        for rec in top_picks:
+            top_picks_result.append({
                 "hero_id": rec.hero_id,
                 "name": rec.name,
                 "total_score": rec.total_score,
+                "lane": rec.lane,
                 "breakdown": rec.breakdown
             })
         
-        return result
+        # Convert lane recommendations to dict format
+        lane_result = {}
+        for lane, recs in lane_recs.items():
+            lane_result[lane] = []
+            for rec in recs:
+                lane_result[lane].append({
+                    "hero_id": rec.hero_id,
+                    "name": rec.name,
+                    "total_score": rec.total_score,
+                    "lane": rec.lane,
+                    "breakdown": rec.breakdown
+                })
+        
+        return {
+            "top_picks": top_picks_result,
+            "lane_recommendations": lane_result,
+            "matchup_probability": matchup_prob
+        }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

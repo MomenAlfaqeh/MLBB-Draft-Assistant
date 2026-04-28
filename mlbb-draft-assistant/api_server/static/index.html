@@ -42,12 +42,30 @@
             border-bottom: 1px solid #00ff41;
             padding-bottom: 5px;
         }
-        .bans-row {
-            display: flex;
+        /* Ban slots mobile fix */
+        .ban-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
-            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
         }
-        .bans-row:last-child { margin-bottom: 0; }
+
+        .ban-slot input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card {
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 600px) {
+            .ban-slots {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
         input[type="text"] {
             flex: 1;
             background: #0a0a0a;
@@ -222,23 +240,23 @@
         <p>AI LINEUP DRAFTER</p>
     </div>
 
-    <div class="section">
+    <div class="section card">
         <div class="section-title">ALLY BANS</div>
-        <div class="bans-row">
-            <input type="text" placeholder="Hero 1" id="ally-ban-1">
-            <input type="text" placeholder="Hero 2" id="ally-ban-2">
-            <input type="text" placeholder="Hero 3" id="ally-ban-3">
-            <input type="text" placeholder="Hero 4" id="ally-ban-4">
+        <div class="ban-slots">
+            <div class="ban-slot"><input type="text" placeholder="Hero 1" id="ally-ban-1"></div>
+            <div class="ban-slot"><input type="text" placeholder="Hero 2" id="ally-ban-2"></div>
+            <div class="ban-slot"><input type="text" placeholder="Hero 3" id="ally-ban-3"></div>
+            <div class="ban-slot"><input type="text" placeholder="Hero 4" id="ally-ban-4"></div>
         </div>
     </div>
 
-    <div class="section">
+    <div class="section card">
         <div class="section-title">ENEMY BANS</div>
-        <div class="bans-row">
-            <input type="text" placeholder="Hero 1" id="enemy-ban-1">
-            <input type="text" placeholder="Hero 2" id="enemy-ban-2">
-            <input type="text" placeholder="Hero 3" id="enemy-ban-3">
-            <input type="text" placeholder="Hero 4" id="enemy-ban-4">
+        <div class="ban-slots">
+            <div class="ban-slot"><input type="text" placeholder="Hero 1" id="enemy-ban-1"></div>
+            <div class="ban-slot"><input type="text" placeholder="Hero 2" id="enemy-ban-2"></div>
+            <div class="ban-slot"><input type="text" placeholder="Hero 3" id="enemy-ban-3"></div>
+            <div class="ban-slot"><input type="text" placeholder="Hero 4" id="enemy-ban-4"></div>
         </div>
     </div>
 

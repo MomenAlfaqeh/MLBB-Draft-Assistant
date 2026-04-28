@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import uvicorn
 import sys
 import os
@@ -27,6 +29,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files BEFORE routes
+app.mount("/static", StaticFiles(directory="api_server/static"), name="static")
+
 # Include router
 app.include_router(router)
 
@@ -47,10 +52,10 @@ async def startup_event():
     else:
         print(f"Database already contains {len(heroes)} heroes. Skipping initial scrape.")
 
-# Root endpoint
+# Root endpoint - serve PWA
 @app.get("/")
 async def root():
-    return {"message": "MLBB AI Draft Assistant API", "version": "1.0.0"}
+    return FileResponse("api_server/static/index.html")
 
 # Run the application
 if __name__ == "__main__":

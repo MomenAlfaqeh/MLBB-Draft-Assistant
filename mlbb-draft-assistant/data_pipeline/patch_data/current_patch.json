@@ -1,0 +1,987 @@
+{
+  "patch": "1.9.46",
+  "release_date": "2026-04-29",
+  "heroes": [
+    {
+      "name": "Gatotkaca",
+      "win_rate": 0.496,
+      "pick_rate": 0.05,
+      "ban_rate": 0.02,
+      "tier": "A",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Franco",
+      "win_rate": 0.489,
+      "pick_rate": 0.12,
+      "ban_rate": 0.05,
+      "tier": "A",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Alucard",
+      "win_rate": 0.492,
+      "pick_rate": 0.1,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Lifesteal"
+    },
+    {
+      "name": "Hayabusa",
+      "win_rate": 0.511,
+      "pick_rate": 0.14,
+      "ban_rate": 0.1,
+      "tier": "S",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Harley",
+      "win_rate": 0.502,
+      "pick_rate": 0.07,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Lyla",
+      "win_rate": 0.53,
+      "pick_rate": 0.14,
+      "ban_rate": 0.06,
+      "tier": "A-",
+      "role": "Mage",
+      "specialty": "Poke, Long Range"
+    },
+    {
+      "name": "Claude",
+      "win_rate": 0.51,
+      "pick_rate": 0.14,
+      "ban_rate": 0.09,
+      "tier": "S",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Karrie",
+      "win_rate": 0.501,
+      "pick_rate": 0.07,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Magic Damage"
+    },
+    {
+      "name": "Rafaela",
+      "win_rate": 0.501,
+      "pick_rate": 0.08,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Heal"
+    },
+    {
+      "name": "Estes",
+      "win_rate": 0.508,
+      "pick_rate": 0.12,
+      "ban_rate": 0.07,
+      "tier": "S",
+      "role": "Support",
+      "specialty": "Heal"
+    },
+    {
+      "name": "Tigreal",
+      "win_rate": 0.512,
+      "pick_rate": 0.15,
+      "ban_rate": 0.08,
+      "tier": "S",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Akai",
+      "win_rate": 0.498,
+      "pick_rate": 0.08,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Minotaur",
+      "win_rate": 0.502,
+      "pick_rate": 0.07,
+      "ban_rate": 0.02,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Lolita",
+      "win_rate": 0.495,
+      "pick_rate": 0.05,
+      "ban_rate": 0.02,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Atlas",
+      "win_rate": 0.521,
+      "pick_rate": 0.18,
+      "ban_rate": 0.12,
+      "tier": "S",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Johnson",
+      "win_rate": 0.488,
+      "pick_rate": 0.06,
+      "ban_rate": 0.03,
+      "tier": "B",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Hylos",
+      "win_rate": 0.501,
+      "pick_rate": 0.07,
+      "ban_rate": 0.02,
+      "tier": "A",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Uranus",
+      "win_rate": 0.509,
+      "pick_rate": 0.09,
+      "ban_rate": 0.04,
+      "tier": "S",
+      "role": "Tank",
+      "specialty": "Sustain"
+    },
+    {
+      "name": "Esmeralda",
+      "win_rate": 0.514,
+      "pick_rate": 0.14,
+      "ban_rate": 0.09,
+      "tier": "S",
+      "role": "Tank",
+      "specialty": "Magic Damage"
+    },
+    {
+      "name": "Terizla",
+      "win_rate": 0.507,
+      "pick_rate": 0.08,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Belerick",
+      "win_rate": 0.485,
+      "pick_rate": 0.03,
+      "ban_rate": 0.01,
+      "tier": "B",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Grock",
+      "win_rate": 0.491,
+      "pick_rate": 0.04,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Edith",
+      "win_rate": 0.516,
+      "pick_rate": 0.16,
+      "ban_rate": 0.1,
+      "tier": "S",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Barats",
+      "win_rate": 0.499,
+      "pick_rate": 0.06,
+      "ban_rate": 0.02,
+      "tier": "A",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Fredrinn",
+      "win_rate": 0.518,
+      "pick_rate": 0.13,
+      "ban_rate": 0.08,
+      "tier": "S",
+      "role": "Tank",
+      "specialty": "Sustain"
+    },
+    {
+      "name": "Chip",
+      "win_rate": 0.502,
+      "pick_rate": 0.1,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Hockney",
+      "win_rate": 0.497,
+      "pick_rate": 0.04,
+      "ban_rate": 0.01,
+      "tier": "B",
+      "role": "Tank",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Chou",
+      "win_rate": 0.523,
+      "pick_rate": 0.15,
+      "ban_rate": 0.11,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Roger",
+      "win_rate": 0.501,
+      "pick_rate": 0.07,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Zilong",
+      "win_rate": 0.496,
+      "pick_rate": 0.08,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Balmond",
+      "win_rate": 0.488,
+      "pick_rate": 0.06,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Bane",
+      "win_rate": 0.494,
+      "pick_rate": 0.04,
+      "ban_rate": 0.01,
+      "tier": "B",
+      "role": "Fighter",
+      "specialty": "Wave Clear"
+    },
+    {
+      "name": "Freya",
+      "win_rate": 0.503,
+      "pick_rate": 0.06,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Ruby",
+      "win_rate": 0.507,
+      "pick_rate": 0.09,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Argus",
+      "win_rate": 0.498,
+      "pick_rate": 0.07,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Lifesteal"
+    },
+    {
+      "name": "Martis",
+      "win_rate": 0.509,
+      "pick_rate": 0.11,
+      "ban_rate": 0.05,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Sun",
+      "win_rate": 0.495,
+      "pick_rate": 0.05,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Fighter",
+      "specialty": "Wave Clear"
+    },
+    {
+      "name": "Minsitthar",
+      "win_rate": 0.501,
+      "pick_rate": 0.06,
+      "ban_rate": 0.02,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Dyrroth",
+      "win_rate": 0.506,
+      "pick_rate": 0.12,
+      "ban_rate": 0.06,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "X.Borg",
+      "win_rate": 0.502,
+      "pick_rate": 0.08,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Guinevere",
+      "win_rate": 0.51,
+      "pick_rate": 0.1,
+      "ban_rate": 0.07,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Yin",
+      "win_rate": 0.511,
+      "pick_rate": 0.14,
+      "ban_rate": 0.09,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Yu Zhong",
+      "win_rate": 0.507,
+      "pick_rate": 0.09,
+      "ban_rate": 0.05,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Lifesteal"
+    },
+    {
+      "name": "Benedetta",
+      "win_rate": 0.513,
+      "pick_rate": 0.16,
+      "ban_rate": 0.12,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Paquito",
+      "win_rate": 0.504,
+      "pick_rate": 0.08,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Aulus",
+      "win_rate": 0.505,
+      "pick_rate": 0.07,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Cici",
+      "win_rate": 0.499,
+      "pick_rate": 0.11,
+      "ban_rate": 0.05,
+      "tier": "A",
+      "role": "Fighter",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Arlott",
+      "win_rate": 0.512,
+      "pick_rate": 0.13,
+      "ban_rate": 0.08,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Lukas",
+      "win_rate": 0.51,
+      "pick_rate": 0.12,
+      "ban_rate": 0.07,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Suyou",
+      "win_rate": 0.509,
+      "pick_rate": 0.1,
+      "ban_rate": 0.06,
+      "tier": "S",
+      "role": "Fighter",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Lancelot",
+      "win_rate": 0.515,
+      "pick_rate": 0.18,
+      "ban_rate": 0.15,
+      "tier": "S",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Gusion",
+      "win_rate": 0.518,
+      "pick_rate": 0.2,
+      "ban_rate": 0.18,
+      "tier": "S",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Fanny",
+      "win_rate": 0.522,
+      "pick_rate": 0.12,
+      "ban_rate": 0.25,
+      "tier": "S",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Natalia",
+      "win_rate": 0.505,
+      "pick_rate": 0.09,
+      "ban_rate": 0.06,
+      "tier": "A",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Selena",
+      "win_rate": 0.508,
+      "pick_rate": 0.08,
+      "ban_rate": 0.07,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Helcurt",
+      "win_rate": 0.495,
+      "pick_rate": 0.04,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Saber",
+      "win_rate": 0.498,
+      "pick_rate": 0.07,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Karina",
+      "win_rate": 0.501,
+      "pick_rate": 0.06,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Ling",
+      "win_rate": 0.516,
+      "pick_rate": 0.11,
+      "ban_rate": 0.12,
+      "tier": "S",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Natan",
+      "win_rate": 0.5,
+      "pick_rate": 0.07,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Julian",
+      "win_rate": 0.514,
+      "pick_rate": 0.15,
+      "ban_rate": 0.11,
+      "tier": "S",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Joy",
+      "win_rate": 0.517,
+      "pick_rate": 0.17,
+      "ban_rate": 0.14,
+      "tier": "S",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Aamon",
+      "win_rate": 0.506,
+      "pick_rate": 0.08,
+      "ban_rate": 0.05,
+      "tier": "A",
+      "role": "Assassin",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Mathilda",
+      "win_rate": 0.501,
+      "pick_rate": 0.06,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Mobility"
+    },
+    {
+      "name": "Kagura",
+      "win_rate": 0.516,
+      "pick_rate": 0.15,
+      "ban_rate": 0.12,
+      "tier": "S",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Vale",
+      "win_rate": 0.509,
+      "pick_rate": 0.1,
+      "ban_rate": 0.06,
+      "tier": "S",
+      "role": "Mage",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Eudora",
+      "win_rate": 0.495,
+      "pick_rate": 0.08,
+      "ban_rate": 0.03,
+      "tier": "B",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Cyclops",
+      "win_rate": 0.501,
+      "pick_rate": 0.09,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Nana",
+      "win_rate": 0.498,
+      "pick_rate": 0.07,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Lylia",
+      "win_rate": 0.507,
+      "pick_rate": 0.11,
+      "ban_rate": 0.07,
+      "tier": "S",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Lunox",
+      "win_rate": 0.512,
+      "pick_rate": 0.12,
+      "ban_rate": 0.09,
+      "tier": "S",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Kadita",
+      "win_rate": 0.514,
+      "pick_rate": 0.14,
+      "ban_rate": 0.11,
+      "tier": "S",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Chang'e",
+      "win_rate": 0.503,
+      "pick_rate": 0.08,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Mage",
+      "specialty": "Wave Clear"
+    },
+    {
+      "name": "Odette",
+      "win_rate": 0.5,
+      "pick_rate": 0.06,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Faramis",
+      "win_rate": 0.502,
+      "pick_rate": 0.07,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Xavier",
+      "win_rate": 0.515,
+      "pick_rate": 0.13,
+      "ban_rate": 0.1,
+      "tier": "S",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Novaria",
+      "win_rate": 0.508,
+      "pick_rate": 0.09,
+      "ban_rate": 0.05,
+      "tier": "A",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Zhuxin",
+      "win_rate": 0.51,
+      "pick_rate": 0.11,
+      "ban_rate": 0.08,
+      "tier": "S",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Yve",
+      "win_rate": 0.504,
+      "pick_rate": 0.08,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Mage",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Valentina",
+      "win_rate": 0.511,
+      "pick_rate": 0.1,
+      "ban_rate": 0.07,
+      "tier": "S",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Pharsa",
+      "win_rate": 0.498,
+      "pick_rate": 0.05,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Aurora",
+      "win_rate": 0.501,
+      "pick_rate": 0.06,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Mage",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Gord",
+      "win_rate": 0.494,
+      "pick_rate": 0.04,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Alice",
+      "win_rate": 0.506,
+      "pick_rate": 0.07,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Mage",
+      "specialty": "Lifesteal"
+    },
+    {
+      "name": "Harith",
+      "win_rate": 0.509,
+      "pick_rate": 0.12,
+      "ban_rate": 0.08,
+      "tier": "S",
+      "role": "Mage",
+      "specialty": "Burst"
+    },
+    {
+      "name": "Kimmy",
+      "win_rate": 0.497,
+      "pick_rate": 0.05,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Marksman",
+      "specialty": "Magic Damage"
+    },
+    {
+      "name": "Layla",
+      "win_rate": 0.488,
+      "pick_rate": 0.12,
+      "ban_rate": 0.03,
+      "tier": "B",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Miya",
+      "win_rate": 0.501,
+      "pick_rate": 0.15,
+      "ban_rate": 0.06,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Moskov",
+      "win_rate": 0.509,
+      "pick_rate": 0.11,
+      "ban_rate": 0.08,
+      "tier": "S",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Bruno",
+      "win_rate": 0.502,
+      "pick_rate": 0.09,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Clint",
+      "win_rate": 0.498,
+      "pick_rate": 0.06,
+      "ban_rate": 0.03,
+      "tier": "B",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Hanabi",
+      "win_rate": 0.499,
+      "pick_rate": 0.1,
+      "ban_rate": 0.05,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Granger",
+      "win_rate": 0.514,
+      "pick_rate": 0.18,
+      "ban_rate": 0.13,
+      "tier": "S",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Lesley",
+      "win_rate": 0.505,
+      "pick_rate": 0.12,
+      "ban_rate": 0.07,
+      "tier": "S",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Irithel",
+      "win_rate": 0.503,
+      "pick_rate": 0.08,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Wanwan",
+      "win_rate": 0.512,
+      "pick_rate": 0.13,
+      "ban_rate": 0.1,
+      "tier": "S",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Yi Sun-shin",
+      "win_rate": 0.506,
+      "pick_rate": 0.09,
+      "ban_rate": 0.05,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Brody",
+      "win_rate": 0.511,
+      "pick_rate": 0.15,
+      "ban_rate": 0.11,
+      "tier": "S",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Beatrix",
+      "win_rate": 0.508,
+      "pick_rate": 0.1,
+      "ban_rate": 0.07,
+      "tier": "S",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Popol and Kupa",
+      "win_rate": 0.502,
+      "pick_rate": 0.06,
+      "ban_rate": 0.03,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Melissa",
+      "win_rate": 0.504,
+      "pick_rate": 0.08,
+      "ban_rate": 0.05,
+      "tier": "A",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Ixia",
+      "win_rate": 0.506,
+      "pick_rate": 0.11,
+      "ban_rate": 0.06,
+      "tier": "S",
+      "role": "Marksman",
+      "specialty": "Physical Damage"
+    },
+    {
+      "name": "Angela",
+      "win_rate": 0.503,
+      "pick_rate": 0.09,
+      "ban_rate": 0.04,
+      "tier": "A",
+      "role": "Support",
+      "specialty": "Heal"
+    },
+    {
+      "name": "Diggie",
+      "win_rate": 0.498,
+      "pick_rate": 0.06,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Floryn",
+      "win_rate": 0.509,
+      "pick_rate": 0.11,
+      "ban_rate": 0.06,
+      "tier": "S",
+      "role": "Support",
+      "specialty": "Heal"
+    },
+    {
+      "name": "Kaja",
+      "win_rate": 0.499,
+      "pick_rate": 0.05,
+      "ban_rate": 0.02,
+      "tier": "B",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Carmilla",
+      "win_rate": 0.497,
+      "pick_rate": 0.04,
+      "ban_rate": 0.01,
+      "tier": "B",
+      "role": "Support",
+      "specialty": "Crowd Control"
+    },
+    {
+      "name": "Dawnbringer",
+      "win_rate": 0.5,
+      "pick_rate": 0.03,
+      "ban_rate": 0.01,
+      "tier": "B",
+      "role": "Support",
+      "specialty": "Heal"
+    },
+    {
+      "name": "Vexana",
+      "win_rate": 0.494,
+      "pick_rate": 0.03,
+      "ban_rate": 0.01,
+      "tier": "B",
+      "role": "Support",
+      "specialty": "Burst"
+    }
+  ]
+}

@@ -28,3 +28,8 @@ SCORING_WEIGHTS = {
     "synergy_score": 0.25,
     "comp_bonus": 0.10
 }
+
+# BigQuery configuration
+BIGQUERY_PROJECT_ID = "mlbb-draft-assistant-494814"
+BIGQUERY_DATASET = "mlbb_draft"
+USE_BIGQUERY = True

@@ -1,0 +1,28 @@
+name: hero_scraper_pipeline
+description: Scrapes MLBB hero data and loads to BigQuery
+blocks:
+  - uuid: scrape_mlbb_heroes
+    type: data_loader
+    downstream_blocks:
+      - clean_hero_data
+    pipeline_uuid: hero_scraper_pipeline
+  - uuid: clean_hero_data
+    type: transformer
+    upstream_blocks:
+      - scrape_mlbb_heroes
+    downstream_blocks:
+      - export_to_bigquery
+    pipeline_uuid: hero_scraper_pipeline
+  - uuid: export_to_bigquery
+    type: data_exporter
+    upstream_blocks:
+      - clean_hero_data
+    pipeline_uuid: hero_scraper_pipeline
+schedule:
+  interval: '@monthly'
+  start_time: '2024-01-01 00:00:00'
+  schedule_type: 'cron'
+triggers:
+  - name: patch_data_updated
+    condition: 'current_patch.json modified'
+    description: 'Trigger pipeline when patch data is updated'

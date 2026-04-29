@@ -10,3 +10,5 @@ pillow
 pytest
 httpx
 pydantic
+google-cloud-bigquery
+google-auth

@@ -33,3 +33,10 @@ SCORING_WEIGHTS = {
 BIGQUERY_PROJECT_ID = "mlbb-draft-assistant-494814"
 BIGQUERY_DATASET = "mlbb_draft"
 USE_BIGQUERY = True
+
+# Cache configuration
+CACHE_EXPIRY_HOURS = 24
+
+# Bayesian scoring parameters
+BAYESIAN_PRIOR = 1000
+GLOBAL_AVG_WR = 0.5

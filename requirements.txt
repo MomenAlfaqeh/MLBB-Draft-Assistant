@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+google-cloud-bigquery
+google-auth
+opencv-python-headless
+pillow
+requests
+beautifulsoup4
+pandas
+pydantic
+python-multipart

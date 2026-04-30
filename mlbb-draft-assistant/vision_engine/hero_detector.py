@@ -4,51 +4,73 @@ import base64
 import sys
 import os
 
-# Add project root to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from vision_engine.template_matcher import TemplateMatcher
+from vision_engine.screen_regions import DRAFT_REGIONS, get_pixel_regions
+
 
 class HeroDetector:
     def __init__(self, matcher: TemplateMatcher = None):
         if matcher is None:
             matcher = TemplateMatcher()
         self.matcher = matcher
-    
+
     def decode_base64_image(self, b64_string: str) -> np.ndarray:
-        """
-        Decode base64 string to OpenCV image (numpy array)
-        """
-        # Remove data URL prefix if present (e.g., "data:image/png;base64,")
         if ',' in b64_string:
             b64_string = b64_string.split(',')[1]
-        
-        # Decode base64
+
         img_data = base64.b64decode(b64_string)
         nparr = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         return img
-    
+
+    def detect_draft(self, screenshot_base64: str) -> dict:
+        img = self.decode_base64_image(screenshot_base64)
+        if img is None:
+            return self._empty_result()
+
+        height, width = img.shape[:2]
+        pixel_regions = get_pixel_regions(width, height)
+
+        result = {
+            "ally_bans": [],
+            "enemy_bans": [],
+            "ally_picks": [],
+            "enemy_picks": [],
+            "confidence_scores": {}
+        }
+
+        for category in ["ally_bans", "enemy_bans", "ally_picks", "enemy_picks"]:
+            slots = pixel_regions.get(category, [])
+            for slot_idx, (x1, y1, x2, y2) in enumerate(slots):
+                region = img[y1:y2, x1:x2]
+                hero_name, confidence = self.matcher.match_region(region)
+
+                result[category].append(hero_name)
+
+                key = f"{category}_{slot_idx}"
+                result["confidence_scores"][key] = {
+                    "hero": hero_name,
+                    "confidence": confidence
+                }
+
+        return result
+
     def process_screenshot(self, img_bytes: bytes) -> dict:
-        """
-        Process a screenshot (as bytes) and return detected heroes
-        For now, we'll decode the image and use the template matcher to detect heroes in the draft region.
-        Returns a dict with keys "ally" and "enemy", each being a list of hero names.
-        """
-        # Convert bytes to numpy array
         nparr = np.frombuffer(img_bytes, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
+
         if img is None:
             return {"ally": [], "enemy": []}
-        
-        # Use the matcher to detect picks
+
         detections = self.matcher.detect_all_picks(img)
-        
-        # For now, we'll return empty lists because the template matching for multiple slots is not implemented
-        # In a real implementation, we would divide the draft region into slots and run match_hero on each slot.
         return {"ally": [], "enemy": []}
 
-# Example usage (for testing)
-if __name__ == "__main__":
-    detector = HeroDetector()
-    print("HeroDetector initialized")
+    def _empty_result(self) -> dict:
+        return {
+            "ally_bans": [None] * 4,
+            "enemy_bans": [None] * 4,
+            "ally_picks": [None] * 5,
+            "enemy_picks": [None] * 5,
+            "confidence_scores": {}
+        }

@@ -1,11 +1,11 @@
-# Project constants for MLBB AI Draft Assistant
+import os
 
 # Database configuration
 DB_PATH = "database/mlbb.db"
 
 # Server configuration
-SERVER_HOST = "localhost"
-SERVER_PORT = 8080
+SERVER_HOST = os.getenv("HOST", "0.0.0.0")
+SERVER_PORT = int(os.getenv("PORT", 8080))
 
 # Vision engine settings
 CAPTURE_INTERVAL_MS = 2000
@@ -30,9 +30,9 @@ SCORING_WEIGHTS = {
 }
 
 # BigQuery configuration
-BIGQUERY_PROJECT_ID = "mlbb-draft-assistant-494814"
-BIGQUERY_DATASET = "mlbb_draft"
-USE_BIGQUERY = True
+BIGQUERY_PROJECT_ID = os.getenv("BIGQUERY_PROJECT_ID", "mlbb-draft-assistant-494814")
+BIGQUERY_DATASET = os.getenv("BIGQUERY_DATASET", "mlbb_draft")
+USE_BIGQUERY = os.getenv("USE_BIGQUERY", "true").lower() == "true"
 
 # Cache configuration
 CACHE_EXPIRY_HOURS = 24

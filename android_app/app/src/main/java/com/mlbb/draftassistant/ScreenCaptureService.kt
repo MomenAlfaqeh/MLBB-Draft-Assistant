@@ -36,6 +36,9 @@ class ScreenCaptureService : Service() {
     private var screenHeight = 0
     private var screenDensity = 0
 
+    @Volatile
+    private var latestBitmap: Bitmap? = null
+
     fun startCapture(context: Context, resultCode: Int, data: Intent) {
         Log.d(TAG, "Starting screen capture")
         mediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -96,6 +99,7 @@ class ScreenCaptureService : Service() {
                     it.close()
 
                     if (bitmap != null) {
+                        latestBitmap = bitmap
                         processScreenshot(bitmap)
                     }
                 }
@@ -149,7 +153,10 @@ class ScreenCaptureService : Service() {
         virtualDisplay?.release()
         mediaProjection?.stop()
         imageReader?.close()
+        latestBitmap = null
     }
+
+    fun getLatestBitmap(): Bitmap? = latestBitmap
 
     private val mediaProjectionCallback = object : MediaProjection.Callback() {
         override fun onStop() {

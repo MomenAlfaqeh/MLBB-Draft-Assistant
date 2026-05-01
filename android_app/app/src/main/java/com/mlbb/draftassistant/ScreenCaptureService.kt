@@ -15,12 +15,11 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.*
-import java.io.ByteArrayOutputStream
 
 class ScreenCaptureService : Service() {
 
     companion object {
-        private const val TAG = "ScreenCaptureService"
+        private const val TAG = "MLBBScreenCapture"
         private const val VIRTUAL_DISPLAY_NAME = "MLBB_ScreenCapture"
         private const val SCREEN_CAPTURE_INTERVAL = 1000L
     }
@@ -38,6 +37,7 @@ class ScreenCaptureService : Service() {
     private var screenDensity = 0
 
     fun startCapture(context: Context, resultCode: Int, data: Intent) {
+        Log.d(TAG, "Starting screen capture")
         mediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 
         mediaProjection = mediaProjectionManager?.getMediaProjection(resultCode, data)
@@ -54,6 +54,7 @@ class ScreenCaptureService : Service() {
     }
 
     private fun setupImageReader() {
+        Log.d(TAG, "Setting up image reader: ${screenWidth}x$screenHeight")
         imageReader = ImageReader.newInstance(
             screenWidth,
             screenHeight,
@@ -63,6 +64,7 @@ class ScreenCaptureService : Service() {
     }
 
     private fun createVirtualDisplay() {
+        Log.d(TAG, "Creating virtual display")
         virtualDisplay = mediaProjection?.createVirtualDisplay(
             VIRTUAL_DISPLAY_NAME,
             screenWidth,
@@ -76,6 +78,7 @@ class ScreenCaptureService : Service() {
     }
 
     private fun startPeriodicCapture() {
+        Log.d(TAG, "Starting periodic capture every ${SCREEN_CAPTURE_INTERVAL}ms")
         serviceScope.launch {
             while (isActive) {
                 captureScreen()
@@ -124,6 +127,7 @@ class ScreenCaptureService : Service() {
     }
 
     private fun processScreenshot(bitmap: Bitmap) {
+        Log.d(TAG, "Processing screenshot")
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
         val byteArray = stream.toByteArray()
@@ -140,6 +144,7 @@ class ScreenCaptureService : Service() {
     }
 
     fun stopCapture() {
+        Log.d(TAG, "Stopping screen capture")
         serviceScope.cancel()
         virtualDisplay?.release()
         mediaProjection?.stop()
@@ -148,6 +153,7 @@ class ScreenCaptureService : Service() {
 
     private val mediaProjectionCallback = object : MediaProjection.Callback() {
         override fun onStop() {
+            Log.d(TAG, "MediaProjection stopped")
             stopCapture()
             super.onStop()
         }
@@ -156,6 +162,7 @@ class ScreenCaptureService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        Log.d(TAG, "ScreenCaptureService destroyed")
         super.onDestroy()
         stopCapture()
     }

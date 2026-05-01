@@ -28,6 +28,13 @@ data class DraftState(
     val isComplete: Boolean = false
 )
 
+data class Recommendation(
+    val hero: String,
+    val lane: String,
+    val confidence: Int,
+    val winRate: Double
+)
+
 class ApiClient {
     private val baseUrl = "https://mlbb-draft-assistant-g19m.onrender.com/"
 

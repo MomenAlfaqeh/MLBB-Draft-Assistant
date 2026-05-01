@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MLBB Draft Assistant</string>
+    <string name="start_overlay">Start Overlay</string>
+    <string name="stop_overlay">Stop Overlay</string>
+    <string name="overlay_permission_required">Overlay permission required</string>
+    <string name="screen_capture_permission_required">Screen capture permission required</string>
+    <string name="overlay_started">Overlay started</string>
+    <string name="overlay_stopped">Overlay stopped</string>
+</resources>

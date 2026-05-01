@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MLBBAssistant" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#00ff41</item>
+        <item name="colorPrimaryDark">#00cc33</item>
+        <item name="colorAccent">#00ff41</item>
+        <item name="android:textColorPrimary">#00ff41</item>
+        <item name="android:background">#121212</item>
+        <item name="android:windowBackground">#121212</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="colorSurface">#1e1e1e</item>
+        <item name="colorOnSurface">#00ff41</item>
+    </style>
+</resources>

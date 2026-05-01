@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/overlay_background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="MLBB Draft Assistant"
+        android:textSize="16sp"
+        android:textColor="#00ff41"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tv_lane_recommendations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Analyzing draft..."
+        android:textSize="12sp"
+        android:textColor="#00ff41"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="8dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#00ff41"
+        android:alpha="0.3"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tv_win_probability"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Win Probability: --%"
+        android:textSize="14sp"
+        android:textColor="#00ff41"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+</LinearLayout>

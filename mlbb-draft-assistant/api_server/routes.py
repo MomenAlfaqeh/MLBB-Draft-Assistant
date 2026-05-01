@@ -192,3 +192,54 @@ async def analyze_screenshot(request: AnalyzeRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to analyze screenshot: {str(e)}"
         )
+
+# Android app endpoints
+@router.get("/api/recommendations")
+async def get_recommendations():
+    try:
+        db, all_heroes = get_db()
+
+        top_picks, matchup_prob = get_top_recommendations(
+            available_heroes=all_heroes,
+            enemy_picks=[],
+            ally_picks=[],
+            top_n=5,
+            db=db
+        )
+
+        recommendations = []
+        for rec in top_picks:
+            recommendations.append({
+                "hero": rec.name,
+                "lane": rec.lane,
+                "confidence": int(rec.total_score * 100),
+                "winRate": rec.total_score
+            })
+
+        return recommendations
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get recommendations: {str(e)}"
+        )
+
+@router.post("/api/analyze-screenshot")
+async def analyze_screenshot_android(request: AnalyzeRequest):
+    try:
+        img_bytes = hero_detector.decode_base64_image(request.screenshot_b64)
+        if img_bytes is None or img_bytes.size == 0:
+            return {"allies": [], "enemies": [], "currentTurn": "", "isComplete": False}
+
+        draft_result = hero_detector.detect_draft(request.screenshot_b64)
+
+        return {
+            "allies": draft_result.get("ally_picks", []),
+            "enemies": draft_result.get("enemy_picks", []),
+            "currentTurn": "ally",
+            "isComplete": False
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to analyze screenshot: {str(e)}"
+        )

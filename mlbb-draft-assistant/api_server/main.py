@@ -14,10 +14,11 @@ if creds_b64:
     except Exception as e:
         print(f"Failed to load credentials: {e}")
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 import uvicorn
 import sys
 
@@ -26,26 +27,9 @@ from database.db_manager import DatabaseManager, BigQueryManager
 from config import DB_PATH, SERVER_HOST, SERVER_PORT, BIGQUERY_PROJECT_ID, BIGQUERY_DATASET, CACHE_EXPIRY_HOURS
 from api_server.routes import router
 
-app = FastAPI(
-    title="MLBB AI Draft Assistant",
-    description="API for Mobile Legends: Bang Bang AI Draft Assistant",
-    version="2.0.0"
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost", "http://127.0.0.1", "http://localhost:8080", "http://127.0.0.1:8080"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.mount("/static", StaticFiles(directory="api_server/static"), name="static")
-
-app.include_router(router)
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     db_manager = DatabaseManager(DB_PATH)
     db_manager.initialize_db()
 
@@ -66,6 +50,30 @@ async def startup_event():
 
     heroes = db_manager.get_all_heroes()
     print(f"Database contains {len(heroes)} heroes")
+
+    yield
+
+    # Shutdown (if needed)
+    pass
+
+app = FastAPI(
+    title="MLBB AI Draft Assistant",
+    description="API for Mobile Legends: Bang Bang AI Draft Assistant",
+    version="2.0.0",
+    lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.mount("/static", StaticFiles(directory="api_server/static"), name="static")
+
+app.include_router(router)
 
 @app.get("/")
 async def root():

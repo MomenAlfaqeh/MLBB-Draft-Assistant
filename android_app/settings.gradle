@@ -12,6 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
 rootProject.name = "MLBB-Draft-Assistant-Android"
 include ':app'

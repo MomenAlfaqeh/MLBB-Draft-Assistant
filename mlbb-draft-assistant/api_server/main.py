@@ -1,10 +1,25 @@
+import os
+import base64
+import tempfile
+
+creds_b64 = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+if creds_b64:
+    try:
+        creds_json = base64.b64decode(creds_b64).decode()
+        tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
+        tmp.write(creds_json)
+        tmp.close()
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = tmp.name
+        print("Google credentials loaded from environment")
+    except Exception as e:
+        print(f"Failed to load credentials: {e}")
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import uvicorn
 import sys
-import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from database.db_manager import DatabaseManager, BigQueryManager
@@ -54,7 +69,8 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    return FileResponse("api_server/static/index.html")
+    static_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    return FileResponse(static_path)
 
 if __name__ == "__main__":
     uvicorn.run(app, host=SERVER_HOST, port=SERVER_PORT)

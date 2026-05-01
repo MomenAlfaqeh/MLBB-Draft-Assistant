@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd /app && python -c 'import os; print(os.listdir(\".\")); print(os.getcwd())'",
+    "startCommand": "uvicorn main:app --host 0.0.0.0 --port $PORT",
     "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE"
   }

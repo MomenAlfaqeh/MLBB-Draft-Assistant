@@ -142,10 +142,9 @@ class OverlayService : Service() {
     }
 
     private fun startScreenCapture(resultCode: Int, data: Intent) {
-        Log.d(TAG, "Starting screen capture service")
-        screenCaptureService = ScreenCaptureService().apply {
-            startCapture(this@OverlayService, resultCode, data)
-        }
+        Log.d(TAG, "Starting screen capture")
+        screenCaptureService = ScreenCaptureService()
+        screenCaptureService?.startCapture(this@OverlayService, resultCode, data)
     }
 
     private fun startUpdateLoop() {

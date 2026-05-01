@@ -9,7 +9,7 @@ SERVER_PORT = int(os.getenv("PORT", 8080))
 
 # Vision engine settings
 CAPTURE_INTERVAL_MS = 2000
-HERO_ICONS_PATH = "vision_engine/hero_icons/"
+HERO_ICONS_PATH = os.path.join(os.path.dirname(__file__), "vision_engine/hero_icons/")
 TEMPLATE_MATCH_THRESHOLD = 0.80
 
 # Scraping sources

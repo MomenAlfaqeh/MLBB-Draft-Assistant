@@ -1,46 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="320dp"
+    android:layout_width="200dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="12dp"
+    android:padding="10dp"
     android:background="@drawable/overlay_background">
 
+    <!-- Header -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MLBB Draft Assistant"
-        android:textSize="16sp"
+        android:text="◈ MLBB DRAFT AI"
+        android:textSize="11sp"
         android:textColor="#00ff41"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="8dp" />
+        android:letterSpacing="0.15"
+        android:layout_marginBottom="6dp" />
 
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#4400ff41"
+        android:layout_marginBottom="6dp" />
+
+    <!-- Lane Recommendations -->
     <TextView
         android:id="@+id/tv_lane_recommendations"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Analyzing draft..."
-        android:textSize="12sp"
-        android:textColor="#00ff41"
-        android:lineSpacingExtra="4dp"
-        android:layout_marginBottom="8dp" />
+        android:textSize="10sp"
+        android:textColor="#00e639"
+        android:lineSpacingExtra="3dp"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="6dp" />
 
+    <!-- Divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#00ff41"
-        android:alpha="0.3"
-        android:layout_marginBottom="8dp" />
+        android:background="#4400ff41"
+        android:layout_marginBottom="6dp" />
 
+    <!-- Win Probability -->
     <TextView
         android:id="@+id/tv_win_probability"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Win Probability: --%"
-        android:textSize="14sp"
+        android:text="Win: --%"
+        android:textSize="13sp"
         android:textColor="#00ff41"
         android:textStyle="bold"
-        android:gravity="center" />
+        android:gravity="center"
+        android:fontFamily="monospace" />
 
 </LinearLayout>

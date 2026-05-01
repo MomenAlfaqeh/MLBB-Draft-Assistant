@@ -6,9 +6,11 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.util.Base64
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -25,18 +27,23 @@ class OverlayService : Service() {
         private const val TAG = "MLBBOverlay"
         private const val CHANNEL_ID = "MLBBOverlayChannel"
         private const val NOTIFICATION_ID = 1
+        private const val UPDATE_INTERVAL_MS = 1000L
     }
 
     private lateinit var windowManager: WindowManager
     private lateinit var overlayView: View
-    private var initialX: Int = 0
-    private var initialY: Int = 0
-    private var initialTouchX: Float = 0f
-    private var initialTouchY: Float = 0f
+    private var initialX = 0
+    private var initialY = 0
+    private var initialTouchX = 0f
+    private var initialTouchY = 0f
 
-    private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var apiClient: ApiClient
     private var screenCaptureService: ScreenCaptureService? = null
+
+    // Current draft state (updated from Vision Engine)
+    private var currentAllyPicks = mutableListOf<String>()
+    private var currentEnemyPicks = mutableListOf<String>()
 
     override fun onCreate() {
         super.onCreate()
@@ -48,8 +55,7 @@ class OverlayService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "OverlayService started")
-        val notification = createNotification()
-        startForeground(NOTIFICATION_ID, notification)
+        startForeground(NOTIFICATION_ID, createNotification())
 
         val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
         val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -64,8 +70,7 @@ class OverlayService : Service() {
             startScreenCapture(resultCode, data)
         }
 
-        startRecommendationUpdates()
-
+        startUpdateLoop()
         return START_STICKY
     }
 
@@ -75,27 +80,23 @@ class OverlayService : Service() {
                 CHANNEL_ID,
                 "MLBB Overlay Service",
                 NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Shows MLBB draft recommendations"
-            }
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+            ).apply { description = "Shows MLBB draft recommendations" }
+            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .createNotificationChannel(channel)
         }
     }
 
-    private fun createNotification(): Notification {
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+    private fun createNotification(): Notification =
+        NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("MLBB Draft Assistant")
-            .setContentText("Overlay is active")
+            .setContentText("Overlay active · Analyzing draft...")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
-    }
 
     private fun setupOverlay() {
-        Log.d(TAG, "Setting up overlay view")
+        Log.d(TAG, "Setting up overlay")
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
         overlayView = LayoutInflater.from(this).inflate(R.layout.overlay_layout, null)
 
         val params = WindowManager.LayoutParams(
@@ -104,18 +105,19 @@ class OverlayService : Service() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             else
+                @Suppress("DEPRECATION")
                 WindowManager.LayoutParams.TYPE_PHONE,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.END
-            x = 0
-            y = 100
+            x = 8
+            y = 120
         }
 
         setupDragListener(params)
         windowManager.addView(overlayView, params)
-        Log.d(TAG, "Overlay view added to window")
+        Log.d(TAG, "Overlay view added")
     }
 
     private fun setupDragListener(params: WindowManager.LayoutParams) {
@@ -146,48 +148,91 @@ class OverlayService : Service() {
         }
     }
 
-    private fun startRecommendationUpdates() {
-        Log.d(TAG, "Starting recommendation updates")
+    private fun startUpdateLoop() {
+        Log.d(TAG, "Starting update loop every ${UPDATE_INTERVAL_MS}ms")
         serviceScope.launch {
+            // Check backend health on start
+            val alive = withContext(Dispatchers.IO) { apiClient.isBackendAlive() }
+            if (!alive) {
+                updateOverlayStatus("⚠ Backend offline")
+            }
+
             while (isActive) {
-                updateRecommendations()
-                delay(1000)
+                updateFromScreenAndApi()
+                delay(UPDATE_INTERVAL_MS)
             }
         }
     }
 
-    private suspend fun updateRecommendations() {
+    private suspend fun updateFromScreenAndApi() {
         withContext(Dispatchers.IO) {
             try {
-                Log.d(TAG, "Fetching recommendations from API")
-                val recommendations = apiClient.getRecommendations()
-                Log.d(TAG, "Received ${recommendations.size} recommendations")
+                // Step 1: Capture & analyze screen
+                val bitmap = screenCaptureService?.getLatestBitmap()
+                if (bitmap != null) {
+                    val base64 = bitmapToBase64(bitmap)
+                    val draftState = apiClient.analyzeScreenshot(base64)
+                    if (draftState.allies.isNotEmpty() || draftState.enemies.isNotEmpty()) {
+                        currentAllyPicks = draftState.allies.toMutableList()
+                        currentEnemyPicks = draftState.enemies.toMutableList()
+                        Log.d(TAG, "Vision: allies=$currentAllyPicks enemies=$currentEnemyPicks")
+                    }
+                }
+
+                // Step 2: Get lane recommendations based on current picks
+                val response = apiClient.getDraftUpdate(
+                    allyPicks = currentAllyPicks,
+                    enemyPicks = currentEnemyPicks
+                )
+
                 withContext(Dispatchers.Main) {
-                    updateOverlayUI(recommendations)
+                    updateOverlayUI(response)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error updating recommendations: ${e.message}")
-                e.printStackTrace()
+                Log.e(TAG, "Update error: ${e.message}")
             }
         }
     }
 
-    private fun updateOverlayUI(recommendations: List<Recommendation>) {
+    private fun bitmapToBase64(bitmap: Bitmap): String {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream)
+        return Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
+    }
+
+    private fun updateOverlayUI(response: DraftUpdateResponse) {
         val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
         val winRateText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
 
-        if (recommendations.isNotEmpty()) {
-            val laneRecs = recommendations.joinToString("\n") {
-                "${it.hero}: ${it.lane} (${it.confidence}%)"
+        val laneRecs = response.lane_recommendations
+        if (laneRecs.isNotEmpty()) {
+            val sb = StringBuilder()
+            val laneOrder = listOf("EXP", "Jungle", "Mid", "Gold", "Roam")
+            for (lane in laneOrder) {
+                val heroes = laneRecs[lane] ?: laneRecs[lane.lowercase()] ?: continue
+                if (heroes.isEmpty()) continue
+                val top = heroes.take(2)
+                val names = top.joinToString(" / ") { it.name }
+                val pct = top.firstOrNull()?.let { "${(it.total_score * 100).toInt()}%" } ?: ""
+                sb.appendLine("[$lane] $names  $pct")
             }
-            laneText.text = laneRecs
-
-            val avgWinRate = recommendations.map { it.winRate }.average()
-            winRateText.text = "Win Probability: ${String.format("%.1f", avgWinRate * 100)}%"
+            laneText.text = sb.toString().trimEnd()
+        } else if (response.top_picks.isNotEmpty()) {
+            val top = response.top_picks.take(5)
+            laneText.text = top.joinToString("\n") {
+                "[${it.lane}] ${it.name}  ${(it.total_score * 100).toInt()}%"
+            }
         } else {
             laneText.text = "Analyzing draft..."
-            winRateText.text = "Win Probability: --%"
         }
+
+        val winPct = (response.matchup_probability * 100).toInt()
+        winRateText.text = "Win: $winPct%"
+    }
+
+    private fun updateOverlayStatus(msg: String) {
+        val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
+        laneText.text = msg
     }
 
     override fun onDestroy() {

@@ -202,10 +202,3 @@ class OverlayService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 }
-
-data class Recommendation(
-    val hero: String,
-    val lane: String,
-    val confidence: Int,
-    val winRate: Double
-)

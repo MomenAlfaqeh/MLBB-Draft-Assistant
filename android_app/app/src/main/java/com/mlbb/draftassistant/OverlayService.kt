@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -21,6 +22,7 @@ import kotlinx.coroutines.*
 class OverlayService : Service() {
 
     companion object {
+        private const val TAG = "MLBBOverlay"
         private const val CHANNEL_ID = "MLBBOverlayChannel"
         private const val NOTIFICATION_ID = 1
     }
@@ -38,19 +40,27 @@ class OverlayService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(TAG, "OverlayService created")
         createNotificationChannel()
         setupOverlay()
         apiClient = ApiClient()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "OverlayService started")
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
 
         val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
-        val data = intent?.getParcelableExtra<Intent>("data")
+        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableExtra("data", Intent::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent?.getParcelableExtra<Intent>("data")
+        }
 
         if (resultCode != -1 && data != null) {
+            Log.d(TAG, "Starting screen capture with resultCode=$resultCode")
             startScreenCapture(resultCode, data)
         }
 
@@ -83,6 +93,7 @@ class OverlayService : Service() {
     }
 
     private fun setupOverlay() {
+        Log.d(TAG, "Setting up overlay view")
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
         overlayView = LayoutInflater.from(this).inflate(R.layout.overlay_layout, null)
@@ -104,6 +115,7 @@ class OverlayService : Service() {
 
         setupDragListener(params)
         windowManager.addView(overlayView, params)
+        Log.d(TAG, "Overlay view added to window")
     }
 
     private fun setupDragListener(params: WindowManager.LayoutParams) {
@@ -128,12 +140,14 @@ class OverlayService : Service() {
     }
 
     private fun startScreenCapture(resultCode: Int, data: Intent) {
+        Log.d(TAG, "Starting screen capture service")
         screenCaptureService = ScreenCaptureService().apply {
             startCapture(this@OverlayService, resultCode, data)
         }
     }
 
     private fun startRecommendationUpdates() {
+        Log.d(TAG, "Starting recommendation updates")
         serviceScope.launch {
             while (isActive) {
                 updateRecommendations()
@@ -145,11 +159,14 @@ class OverlayService : Service() {
     private suspend fun updateRecommendations() {
         withContext(Dispatchers.IO) {
             try {
+                Log.d(TAG, "Fetching recommendations from API")
                 val recommendations = apiClient.getRecommendations()
+                Log.d(TAG, "Received ${recommendations.size} recommendations")
                 withContext(Dispatchers.Main) {
                     updateOverlayUI(recommendations)
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "Error updating recommendations: ${e.message}")
                 e.printStackTrace()
             }
         }
@@ -166,7 +183,7 @@ class OverlayService : Service() {
             laneText.text = laneRecs
 
             val avgWinRate = recommendations.map { it.winRate }.average()
-            winRateText.text = "Win Probability: ${String.format("%.1f", avgWinRate)}%"
+            winRateText.text = "Win Probability: ${String.format("%.1f", avgWinRate * 100)}%"
         } else {
             laneText.text = "Analyzing draft..."
             winRateText.text = "Win Probability: --%"
@@ -174,6 +191,7 @@ class OverlayService : Service() {
     }
 
     override fun onDestroy() {
+        Log.d(TAG, "OverlayService destroyed")
         super.onDestroy()
         serviceScope.cancel()
         screenCaptureService?.stopCapture()

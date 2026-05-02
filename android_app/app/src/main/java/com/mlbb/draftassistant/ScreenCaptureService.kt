@@ -210,22 +210,21 @@ class ScreenCaptureService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID,
-                "MLBB Screen Capture",
-                NotificationManager.IMPORTANCE_LOW
+                CHANNEL_ID, "MLBB Screen Capture", NotificationManager.IMPORTANCE_LOW
             ).apply { description = "Captures screen for draft analysis" }
             (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
                 .createNotificationChannel(channel)
         }
     }
 
-    private fun createNotification(): Notification =
-        NotificationCompat.Builder(this, CHANNEL_ID)
+    private fun createNotification(): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("MLBB Screen Capture")
             .setContentText("Capturing screen...")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
+    }
 
     private fun stopCapture() {
         Log.d(TAG, "Stopping screen capture")

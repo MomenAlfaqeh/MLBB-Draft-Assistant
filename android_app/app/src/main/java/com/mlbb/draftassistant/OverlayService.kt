@@ -1,4 +1,4 @@
-package com.mlbb.draftassistant!
+package com.mlbb.draftassistant
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -39,8 +39,16 @@ class OverlayService : Service(), DraftUpdateManager.DraftUpdateListener {
         Log.d(TAG, "OverlayService created")
         createNotificationChannel()
         setupOverlay()
-        DraftUpdateManager.registerListener(this)
+        DraftUpdateManager.addListener(this)
         Log.d(TAG, "DraftUpdateManager listener registered")
+    }
+
+    override fun onDraftUpdate(winProbability: Double, recommendations: String) {
+        Log.d(TAG, "onDraftUpdate called - win=$winProbability")
+        val winText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
+        val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
+        winText.text = "Win: ${winProbability.toInt()}%"
+        laneText.text = recommendations
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -74,35 +82,27 @@ class OverlayService : Service(), DraftUpdateManager.DraftUpdateListener {
         return START_STICKY
     }
 
-    override fun onDraftUpdate(winProbability: Double, recommendations: String) {
-        Log.d(TAG, "onDraftUpdate called - win=$winProbability")
-        val winText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
-        val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
-        winText.text = "Win: ${winProbability.toInt()}%"
-        laneText.text = recommendations
-    }
-
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID, "MLBB Overlay", NotificationManager.IMPORTANCE_LOW
-            )
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                .createNotificationChannel(channel)
+            val channel = NotificationChannel(CHANNEL_ID, "MLBB Overlay", NotificationManager.IMPORTANCE_LOW)
+            channel.description = "Shows MLBB draft recommendations"
+            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
         }
     }
 
-    private fun createNotification(): Notification =
-        NotificationCompat.Builder(this, CHANNEL_ID)
+    private fun createNotification(): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("MLBB Draft Assistant")
             .setContentText("Overlay active")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
+    }
 
     private fun setupOverlay() {
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         overlayView = LayoutInflater.from(this).inflate(R.layout.overlay_layout, null)
+
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -118,11 +118,14 @@ class OverlayService : Service(), DraftUpdateManager.DraftUpdateListener {
             x = 8
             y = 120
         }
+
         overlayView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    initialX = params.x; initialY = params.y
-                    initialTouchX = event.rawX; initialTouchY = event.rawY
+                    initialX = params.x
+                    initialY = params.y
+                    initialTouchX = event.rawX
+                    initialTouchY = event.rawY
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -134,13 +137,14 @@ class OverlayService : Service(), DraftUpdateManager.DraftUpdateListener {
                 else -> false
             }
         }
+
         windowManager.addView(overlayView, params)
         Log.d(TAG, "Overlay view added")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        DraftUpdateManager.unregisterListener(this)
+        DraftUpdateManager.removeListener(this)
         if (::windowManager.isInitialized && ::overlayView.isInitialized) {
             windowManager.removeView(overlayView)
         }

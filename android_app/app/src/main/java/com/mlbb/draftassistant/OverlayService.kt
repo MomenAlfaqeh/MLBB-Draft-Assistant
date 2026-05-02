@@ -19,7 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 
-class OverlayService : Service(), DraftUpdateManager.DraftUpdateListener {
+class OverlayService : Service(), DraftUpdateListener {
 
     companion object {
         private const val TAG = "MLBBOverlay"
@@ -39,16 +39,38 @@ class OverlayService : Service(), DraftUpdateManager.DraftUpdateListener {
         Log.d(TAG, "OverlayService created")
         createNotificationChannel()
         setupOverlay()
-        DraftUpdateManager.addListener(this)
-        Log.d(TAG, "DraftUpdateManager listener registered")
+        DraftUpdateManager.registerListener(this)
+        Log.d(TAG, "DraftUpdateListener registered")
     }
 
     override fun onDraftUpdate(winProbability: Double, recommendations: String) {
-        Log.d(TAG, "onDraftUpdate called - win=$winProbability")
-        val winText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
+        Log.d(TAG, "DRAFT_UPDATE received")
+        Log.d(TAG, "Updating UI with: win_probability=$winProbability, recommendations=$recommendations")
+
+        val winRateText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
         val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
-        winText.text = "Win: ${winProbability.toInt()}%"
-        laneText.text = recommendations
+
+        winRateText.text = "Win: ${winProbability.toInt()}%"
+
+        try {
+            val json = JSONObject(recommendations)
+            val sb = StringBuilder()
+            val laneOrder = listOf("EXP", "Jungle", "Mid", "Gold", "Roam")
+            for (lane in laneOrder) {
+                val heroes = json.optJSONArray(lane) ?: json.optJSONArray(lane.lowercase()) ?: continue
+                if (heroes.length() == 0) continue
+                val top = (0 until minOf(2, heroes.length())).map { heroes.getJSONObject(it) }
+                val names = top.joinToString(" / ") { it.getString("name") }
+                val pct = top.firstOrNull()?.let {
+                    "${(it.optDouble("total_score", 0.0) * 100).toInt()}%"
+                } ?: ""
+                sb.appendLine("[$lane] $names  $pct")
+            }
+            laneText.text = sb.toString().trimEnd()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing recommendations: ${e.message}")
+            laneText.text = "Analyzing draft..."
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -84,9 +106,13 @@ class OverlayService : Service(), DraftUpdateManager.DraftUpdateListener {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "MLBB Overlay", NotificationManager.IMPORTANCE_LOW)
-            channel.description = "Shows MLBB draft recommendations"
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "MLBB Overlay",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply { description = "Shows MLBB draft recommendations" }
+            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .createNotificationChannel(channel)
         }
     }
 
@@ -144,7 +170,7 @@ class OverlayService : Service(), DraftUpdateManager.DraftUpdateListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        DraftUpdateManager.removeListener(this)
+        DraftUpdateManager.unregisterListener(this)
         if (::windowManager.isInitialized && ::overlayView.isInitialized) {
             windowManager.removeView(overlayView)
         }

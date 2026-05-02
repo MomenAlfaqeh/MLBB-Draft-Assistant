@@ -210,7 +210,9 @@ class ScreenCaptureService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID, "MLBB Screen Capture", NotificationManager.IMPORTANCE_LOW
+                CHANNEL_ID,
+                "MLBB Screen Capture",
+                NotificationManager.IMPORTANCE_LOW
             ).apply { description = "Captures screen for draft analysis" }
             (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
                 .createNotificationChannel(channel)

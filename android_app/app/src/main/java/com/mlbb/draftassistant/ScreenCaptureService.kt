@@ -221,11 +221,11 @@ class ScreenCaptureService : Service() {
     }
 
     private fun createNotification(): Notification =
-        androidx.core.app.NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("MLBB Screen Capture")
             .setContentText("Capturing screen...")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
-            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
 
     private fun stopCapture() {

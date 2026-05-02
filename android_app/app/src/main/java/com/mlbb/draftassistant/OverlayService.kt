@@ -51,26 +51,20 @@ class OverlayService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "OverlayService onStartCommand")
         startForeground(NOTIFICATION_ID, createNotification())
-
-        // Small delay to ensure MainActivity has saved the data
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            val resultCode = MainActivity.projectionResultCode
-            val data = MainActivity.projectionData
-
-            Toast.makeText(this, "OverlayService: resultCode=$resultCode data=${data != null}", Toast.LENGTH_LONG).show()
-
-            if (resultCode != -1 && data != null) {
-                Toast.makeText(this, "Starting ScreenCaptureService...", Toast.LENGTH_SHORT).show()
-                val captureIntent = Intent(this, ScreenCaptureService::class.java)
-                captureIntent.putExtra("start", true)
-                startForegroundService(captureIntent)
-            } else {
-                Toast.makeText(this, "ERROR: resultCode=$resultCode data=$data", Toast.LENGTH_LONG).show()
-            }
-        }, 500) // 500ms delay
-
+        
+        val resultCode = MainActivity.projectionResultCode
+        val data = MainActivity.projectionData
+        
+        // Show exactly what we received
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            Toast.makeText(
+                this,
+                "RC=${resultCode} | Data=${if(data != null) "OK" else "NULL"}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+        
         return START_STICKY
     }
 

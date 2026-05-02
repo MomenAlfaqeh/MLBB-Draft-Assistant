@@ -87,6 +87,7 @@ class OverlayService : Service(), DraftUpdateListener {
         }
 
         Log.d(TAG, "Got resultCode=$resultCode, data=$data")
+        Toast.makeText(this, "OverlayService started - resultCode=$resultCode", Toast.LENGTH_SHORT).show()
 
         // Start ScreenCaptureService with the projection data
         if (resultCode != -1 && data != null) {
@@ -95,8 +96,10 @@ class OverlayService : Service(), DraftUpdateListener {
                 putExtra("data", data)
             }
             startForegroundService(captureIntent)
+            Toast.makeText(this, "Starting ScreenCaptureService...", Toast.LENGTH_SHORT).show()
             Log.d(TAG, "ScreenCaptureService started with projection data")
         } else {
+            Toast.makeText(this, "No projection data! resultCode=$resultCode", Toast.LENGTH_LONG).show()
             Log.w(TAG, "No projection data - resultCode=$resultCode, data=$data")
         }
 

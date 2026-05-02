@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "Button clicked - Start Overlay")
             when {
                 !Settings.canDrawOverlays(this) -> {
+                    Toast.makeText(this, "Checking overlay permission...", Toast.LENGTH_SHORT).show()
                     Log.d(TAG, "Requesting overlay permission")
                     startActivityForResult(
                         Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")),
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
                 else -> {
+                    Toast.makeText(this, "Overlay permission OK - requesting screen capture...", Toast.LENGTH_SHORT).show()
                     Log.d(TAG, "Requesting screen capture permission")
                     startActivityForResult(
                         mediaProjectionManager.createScreenCaptureIntent(),
@@ -72,18 +74,20 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             OVERLAY_PERMISSION_REQUEST -> {
                 if (Settings.canDrawOverlays(this)) {
+                    Toast.makeText(this, "Overlay permission OK - requesting screen capture...", Toast.LENGTH_SHORT).show()
                     Log.d(TAG, "Overlay permission granted - requesting screen capture")
                     startActivityForResult(
                         mediaProjectionManager.createScreenCaptureIntent(),
                         SCREEN_CAPTURE_REQUEST
                     )
                 } else {
-                    Toast.makeText(this, "Overlay permission required", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Overlay permission DENIED", Toast.LENGTH_SHORT).show()
                     Log.w(TAG, "Overlay permission denied by user")
                 }
             }
             SCREEN_CAPTURE_REQUEST -> {
                 if (resultCode == RESULT_OK && data != null) {
+                    Toast.makeText(this, "Screen capture granted! Starting overlay...", Toast.LENGTH_SHORT).show()
                     Log.d(TAG, "Screen capture permission granted - starting overlay service")
                     val intent = Intent(this, OverlayService::class.java).apply {
                         putExtra("resultCode", resultCode)
@@ -93,7 +97,7 @@ class MainActivity : AppCompatActivity() {
                     updateButtonStates()
                     Toast.makeText(this, "Overlay started", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Screen capture permission required", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Screen capture DENIED", Toast.LENGTH_SHORT).show()
                     Log.w(TAG, "Screen capture permission denied by user")
                 }
             }

@@ -60,8 +60,11 @@ class ScreenCaptureService : Service() {
         Log.d(TAG, "ScreenCaptureService started")
         startForeground(NOTIFICATION_ID, createNotification())
 
+        Toast.makeText(this, "ScreenCaptureService started!", Toast.LENGTH_SHORT).show()
+
         // Send test update immediately for debugging
         DraftUpdateManager.notifyUpdate(55.0, """{"EXP":[],"Jungle":[],"Mid":[],"Gold":[],"Roam":[]}""")
+        Toast.makeText(this, "Test: Win=55% should appear now", Toast.LENGTH_SHORT).show()
         Log.d(TAG, "Test update sent - win_probability=55.0")
 
         val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1

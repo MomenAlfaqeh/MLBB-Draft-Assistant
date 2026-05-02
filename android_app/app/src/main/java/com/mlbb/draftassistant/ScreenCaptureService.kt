@@ -68,13 +68,8 @@ class ScreenCaptureService : Service() {
         Toast.makeText(this, "Test: Win=55% should appear now", Toast.LENGTH_SHORT).show()
         Log.d(TAG, "Test update sent - win_probability=55.0")
 
-        val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
-        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent?.getParcelableExtra("data", Intent::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent?.getParcelableExtra<Intent>("data")
-        }
+        val resultCode = MainActivity.projectionResultCode
+        val data = MainActivity.projectionData
 
         if (resultCode != -1 && data != null) {
             startCapturing(resultCode, data)

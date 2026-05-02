@@ -21,6 +21,8 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MLBB"
         private const val OVERLAY_PERMISSION_REQUEST = 1001
         private const val SCREEN_CAPTURE_REQUEST = 1002
+        var projectionResultCode: Int = -1
+        var projectionData: Intent? = null
     }
 
     private lateinit var btnStartOverlay: Button
@@ -89,10 +91,9 @@ class MainActivity : AppCompatActivity() {
                 if (resultCode == RESULT_OK && data != null) {
                     Toast.makeText(this, "Screen capture granted! Starting overlay...", Toast.LENGTH_SHORT).show()
                     Log.d(TAG, "Screen capture permission granted - starting overlay service")
-                    val intent = Intent(this, OverlayService::class.java).apply {
-                        putExtra("resultCode", resultCode)
-                        putExtra("data", data)
-                    }
+                    projectionResultCode = resultCode
+                    projectionData = data
+                    val intent = Intent(this, OverlayService::class.java)
                     startForegroundService(intent)
                     updateButtonStates()
                     Toast.makeText(this, "Overlay started", Toast.LENGTH_SHORT).show()

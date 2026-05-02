@@ -54,23 +54,15 @@ class OverlayService : Service() {
         Log.d(TAG, "OverlayService onStartCommand")
         startForeground(NOTIFICATION_ID, createNotification())
 
-        val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
-        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent?.getParcelableExtra("data", Intent::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent?.getParcelableExtra<Intent>("data")
-        }
+        val resultCode = MainActivity.projectionResultCode
+        val data = MainActivity.projectionData
 
         Toast.makeText(this, "OverlayService started - resultCode=$resultCode", Toast.LENGTH_SHORT).show()
         Log.d(TAG, "Got resultCode=$resultCode, data=$data")
 
         if (resultCode != -1 && data != null) {
             Toast.makeText(this, "Starting ScreenCaptureService...", Toast.LENGTH_SHORT).show()
-            val captureIntent = Intent(this, ScreenCaptureService::class.java).apply {
-                putExtra("resultCode", resultCode)
-                putExtra("data", data)
-            }
+            val captureIntent = Intent(this, ScreenCaptureService::class.java)
             startForegroundService(captureIntent)
             Log.d(TAG, "ScreenCaptureService started")
         } else {

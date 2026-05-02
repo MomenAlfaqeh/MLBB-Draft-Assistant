@@ -61,6 +61,14 @@ class ScreenCaptureService : Service() {
         Log.d(TAG, "ScreenCaptureService started")
         startForeground(NOTIFICATION_ID, createNotification())
 
+        // Send test broadcast immediately for debugging
+        val testIntent = Intent("DRAFT_UPDATE").apply {
+            putExtra("win_probability", 55.5)
+            putExtra("recommendations", "TEST: Chou, Gusion")
+        }
+        LocalBroadcastManager.getInstance(this).sendBroadcast(testIntent)
+        Log.d(TAG, "Test broadcast sent - win_probability=55.5")
+
         val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
         val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent?.getParcelableExtra("data", Intent::class.java)
@@ -72,6 +80,8 @@ class ScreenCaptureService : Service() {
         if (resultCode != -1 && data != null) {
             startCapturing(resultCode, data)
             startPeriodicCaptureAndApiCall()
+        } else {
+            Log.w(TAG, "No valid projection data received - resultCode=$resultCode, data=$data")
         }
 
         return START_STICKY
@@ -81,6 +91,7 @@ class ScreenCaptureService : Service() {
         val mediaProjectionManager = getSystemService(MediaProjectionManager::class.java)
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
         mediaProjection?.registerCallback(mediaProjectionCallback, null)
+        Log.d(TAG, "MediaProjection created")
 
         val metrics = resources.displayMetrics
         screenWidth = metrics.widthPixels
@@ -118,6 +129,7 @@ class ScreenCaptureService : Service() {
                 if (bitmap != null) {
                     latestBitmap?.recycle()
                     latestBitmap = bitmap
+                    Log.d(TAG, "Screenshot captured, size: ${bitmap.byteCount} bytes")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Image listener error: ${e.message}")
@@ -136,6 +148,7 @@ class ScreenCaptureService : Service() {
                 if (base64.isEmpty()) continue
 
                 try {
+                    Log.d(TAG, "Sending to API...")
                     val jsonBody = JSONObject().apply {
                         put("screenshot_b64", base64)
                     }.toString()
@@ -148,6 +161,7 @@ class ScreenCaptureService : Service() {
                     val response = okHttpClient.newCall(request).execute()
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
+                        Log.d(TAG, "API response: $responseBody")
                         if (responseBody != null) {
                             val jsonResponse = JSONObject(responseBody)
                             val winProbability = jsonResponse.optDouble("win_probability", 0.0)
@@ -159,7 +173,7 @@ class ScreenCaptureService : Service() {
                             }
                             LocalBroadcastManager.getInstance(this@ScreenCaptureService)
                                 .sendBroadcast(broadcastIntent)
-                            Log.d(TAG, "Sent DRAFT_UPDATE broadcast: win=$winProbability")
+                            Log.d(TAG, "Broadcast sent - win_probability=$winProbability")
                         }
                     } else {
                         Log.e(TAG, "API call failed: ${response.code} ${response.message}")

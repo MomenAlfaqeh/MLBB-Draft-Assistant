@@ -39,8 +39,10 @@ class OverlayService : Service() {
 
     private val draftUpdateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d(TAG, "DRAFT_UPDATE received")
             val winProb = intent?.getDoubleExtra("win_probability", 0.0) ?: 0.0
             val recommendationsJson = intent?.getStringExtra("recommendations") ?: "{}"
+            Log.d(TAG, "Updating UI with: win_probability=$winProb, recommendations=$recommendationsJson")
 
             val winRateText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
             val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
@@ -82,7 +84,7 @@ class OverlayService : Service() {
     private fun registerBroadcastReceiver() {
         val filter = IntentFilter("DRAFT_UPDATE")
         LocalBroadcastManager.getInstance(this).registerReceiver(draftUpdateReceiver, filter)
-        Log.d(TAG, "Registered DRAFT_UPDATE receiver")
+        Log.d(TAG, "BroadcastReceiver registered for DRAFT_UPDATE")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

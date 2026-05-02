@@ -121,7 +121,7 @@ class OverlayService : Service(), DraftUpdateListener {
     private fun createNotification(): Notification =
         NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("MLBB Draft Assistant")
-            .setContentText("Overlay active . Analyzing draft...")
+            .setContentText("Overlay active · Analyzing draft...")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()

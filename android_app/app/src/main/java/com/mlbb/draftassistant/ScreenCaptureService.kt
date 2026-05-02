@@ -16,7 +16,6 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Base64
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -61,13 +60,9 @@ class ScreenCaptureService : Service() {
         Log.d(TAG, "ScreenCaptureService started")
         startForeground(NOTIFICATION_ID, createNotification())
 
-        // Send test broadcast immediately for debugging
-        val testIntent = Intent("DRAFT_UPDATE").apply {
-            putExtra("win_probability", 0.55)
-            putExtra("recommendations", """{"EXP":[],"Jungle":[],"Mid":[],"Gold":[],"Roam":[]}""")
-        }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(testIntent)
-        Log.d(TAG, "Test broadcast sent - win_probability=0.55")
+        // Send test update immediately for debugging
+        DraftUpdateManager.notifyUpdate(55.0, """{"EXP":[],"Jungle":[],"Mid":[],"Gold":[],"Roam":[]}""")
+        Log.d(TAG, "Test update sent - win_probability=55.0")
 
         val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
         val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -167,13 +162,8 @@ class ScreenCaptureService : Service() {
                             val winProbability = jsonResponse.optDouble("win_probability", 0.0)
                             val recommendations = jsonResponse.optString("recommendations", "{}")
 
-                            val broadcastIntent = Intent("DRAFT_UPDATE").apply {
-                                putExtra("win_probability", winProbability)
-                                putExtra("recommendations", recommendations)
-                            }
-                            LocalBroadcastManager.getInstance(this@ScreenCaptureService)
-                                .sendBroadcast(broadcastIntent)
-                            Log.d(TAG, "Broadcast sent - win_probability=$winProbability")
+                            DraftUpdateManager.notifyUpdate(winProbability * 100, recommendations)
+                            Log.d(TAG, "DraftUpdateManager notified - win_probability=${winProbability * 100}")
                         }
                     } else {
                         Log.e(TAG, "API call failed: ${response.code} ${response.message}")

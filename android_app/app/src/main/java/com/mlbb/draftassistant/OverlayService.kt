@@ -3,10 +3,6 @@ package com.mlbb.draftassistant
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
@@ -18,11 +14,10 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.json.JSONObject
 import org.json.JSONArray
 
-class OverlayService : Service() {
+class OverlayService : Service(), DraftUpdateListener {
 
     companion object {
         private const val TAG = "MLBBOverlay"
@@ -37,54 +32,45 @@ class OverlayService : Service() {
     private var initialTouchX = 0f
     private var initialTouchY = 0f
 
-    private val draftUpdateReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d(TAG, "DRAFT_UPDATE received")
-            val winProb = intent?.getDoubleExtra("win_probability", 0.0) ?: 0.0
-            val recommendationsJson = intent?.getStringExtra("recommendations") ?: "{}"
-            Log.d(TAG, "Updating UI with: win_probability=$winProb, recommendations=$recommendationsJson")
-
-            val winRateText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
-            val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
-
-            // Update win probability
-            winRateText.text = "Win: ${winProb.toInt()}%"
-
-            // Parse recommendations JSON
-            try {
-                val json = JSONObject(recommendationsJson)
-                val sb = StringBuilder()
-                val laneOrder = listOf("EXP", "Jungle", "Mid", "Gold", "Roam")
-                for (lane in laneOrder) {
-                    val heroes = json.optJSONArray(lane) ?: json.optJSONArray(lane.lowercase()) ?: continue
-                    if (heroes.length() == 0) continue
-                    val top = (0 until minOf(2, heroes.length())).map { heroes.getJSONObject(it) }
-                    val names = top.joinToString(" / ") { it.getString("name") }
-                    val pct = top.firstOrNull()?.let {
-                        "${(it.optDouble("total_score", 0.0) * 100).toInt()}%"
-                    } ?: ""
-                    sb.appendLine("[$lane] $names  $pct")
-                }
-                laneText.text = sb.toString().trimEnd()
-            } catch (e: Exception) {
-                Log.e(TAG, "Error parsing recommendations: ${e.message}")
-                laneText.text = "Analyzing draft..."
-            }
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "OverlayService created")
         createNotificationChannel()
         setupOverlay()
-        registerBroadcastReceiver()
+        DraftUpdateManager.registerListener(this)
+        Log.d(TAG, "DraftUpdateListener registered")
     }
 
-    private fun registerBroadcastReceiver() {
-        val filter = IntentFilter("DRAFT_UPDATE")
-        LocalBroadcastManager.getInstance(this).registerReceiver(draftUpdateReceiver, filter)
-        Log.d(TAG, "BroadcastReceiver registered for DRAFT_UPDATE")
+    override fun onDraftUpdate(winProbability: Double, recommendationsJson: String) {
+        Log.d(TAG, "DRAFT_UPDATE received")
+        Log.d(TAG, "Updating UI with: win_probability=$winProbability, recommendations=$recommendationsJson")
+
+        val winRateText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
+        val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
+
+        // Update win probability
+        winRateText.text = "Win: ${winProbability.toInt()}%"
+
+        // Parse recommendations JSON
+        try {
+            val json = JSONObject(recommendationsJson)
+            val sb = StringBuilder()
+            val laneOrder = listOf("EXP", "Jungle", "Mid", "Gold", "Roam")
+            for (lane in laneOrder) {
+                val heroes = json.optJSONArray(lane) ?: json.optJSONArray(lane.lowercase()) ?: continue
+                if (heroes.length() == 0) continue
+                val top = (0 until minOf(2, heroes.length())).map { heroes.getJSONObject(it) }
+                val names = top.joinToString(" / ") { it.getString("name") }
+                val pct = top.firstOrNull()?.let {
+                    "${(it.optDouble("total_score", 0.0) * 100).toInt()}%"
+                } ?: ""
+                sb.appendLine("[$lane] $names  $pct")
+            }
+            laneText.text = sb.toString().trimEnd()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing recommendations: ${e.message}")
+            laneText.text = "Analyzing draft..."
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -187,7 +173,7 @@ class OverlayService : Service() {
     override fun onDestroy() {
         Log.d(TAG, "OverlayService destroyed")
         super.onDestroy()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(draftUpdateReceiver)
+        DraftUpdateManager.unregisterListener(this)
         if (::windowManager.isInitialized && ::overlayView.isInitialized) {
             windowManager.removeView(overlayView)
         }

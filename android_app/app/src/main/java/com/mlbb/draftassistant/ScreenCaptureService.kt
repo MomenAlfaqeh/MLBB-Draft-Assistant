@@ -62,8 +62,7 @@ class ScreenCaptureService : Service() {
 
         Toast.makeText(this, "ScreenCaptureService started!", Toast.LENGTH_SHORT).show()
 
-        // Send test update immediately for debugging
-        DraftUpdateManager.notifyUpdate(55.0, """{"EXP":[],"Jungle":[],"Mid":[],"Gold":[],"Roam":[]}""")
+        DraftUpdateManager.notifyUpdate(55.0, "{\"EXP\":[],\"Jungle\":[],\"Mid\":[],\"Gold\":[],\"Roam\":[]}")
         Toast.makeText(this, "Test: Win=55% should appear now", Toast.LENGTH_SHORT).show()
         Log.d(TAG, "Test update sent - win_probability=55.0")
 
@@ -103,7 +102,7 @@ class ScreenCaptureService : Service() {
     }
 
     private fun setupImageReader() {
-        imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 2)
+        imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGB_8888, 2)
     }
 
     private fun createVirtualDisplay() {

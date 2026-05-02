@@ -52,10 +52,8 @@ class OverlayService : Service(), DraftUpdateListener {
         val winRateText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
         val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
 
-        // Update win probability
         winRateText.text = "Win: ${winProbability.toInt()}%"
 
-        // Parse recommendations JSON
         try {
             val json = JSONObject(recommendationsJson)
             val sb = StringBuilder()
@@ -81,7 +79,6 @@ class OverlayService : Service(), DraftUpdateListener {
         Log.d(TAG, "OverlayService onStartCommand - starting foreground")
         startForeground(NOTIFICATION_ID, createNotification())
 
-        // Get projection data from MainActivity
         val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
         val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent?.getParcelableExtra("data", Intent::class.java)
@@ -93,7 +90,6 @@ class OverlayService : Service(), DraftUpdateListener {
         Log.d(TAG, "Got resultCode=$resultCode, data=$data")
         Toast.makeText(this, "OverlayService started - resultCode=$resultCode", Toast.LENGTH_SHORT).show()
 
-        // Start ScreenCaptureService with the projection data
         if (resultCode != -1 && data != null) {
             val captureIntent = Intent(this, ScreenCaptureService::class.java).apply {
                 putExtra("resultCode", resultCode)
@@ -125,7 +121,7 @@ class OverlayService : Service(), DraftUpdateListener {
     private fun createNotification(): Notification =
         NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("MLBB Draft Assistant")
-            .setContentText("Overlay active · Analyzing draft...")
+            .setContentText("Overlay active . Analyzing draft...")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()

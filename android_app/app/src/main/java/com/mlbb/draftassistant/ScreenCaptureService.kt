@@ -63,11 +63,11 @@ class ScreenCaptureService : Service() {
 
         // Send test broadcast immediately for debugging
         val testIntent = Intent("DRAFT_UPDATE").apply {
-            putExtra("win_probability", 55.5)
-            putExtra("recommendations", "TEST: Chou, Gusion")
+            putExtra("win_probability", 0.55)
+            putExtra("recommendations", """{"EXP":[],"Jungle":[],"Mid":[],"Gold":[],"Roam":[]}""")
         }
         LocalBroadcastManager.getInstance(this).sendBroadcast(testIntent)
-        Log.d(TAG, "Test broadcast sent - win_probability=55.5")
+        Log.d(TAG, "Test broadcast sent - win_probability=0.55")
 
         val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
         val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

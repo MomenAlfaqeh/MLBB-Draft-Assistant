@@ -48,7 +48,7 @@ class OverlayService : Service() {
             val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
 
             // Update win probability
-            winRateText.text = "Win: ${(winProb * 100).toInt()}%"
+            winRateText.text = "Win: ${winProb.toInt()}%"
 
             // Parse recommendations JSON
             try {
@@ -88,8 +88,32 @@ class OverlayService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "OverlayService started")
+        Log.d(TAG, "OverlayService onStartCommand - starting foreground")
         startForeground(NOTIFICATION_ID, createNotification())
+
+        // Get projection data from MainActivity
+        val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
+        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableExtra("data", Intent::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent?.getParcelableExtra<Intent>("data")
+        }
+
+        Log.d(TAG, "Got resultCode=$resultCode, data=$data")
+
+        // Start ScreenCaptureService with the projection data
+        if (resultCode != -1 && data != null) {
+            val captureIntent = Intent(this, ScreenCaptureService::class.java).apply {
+                putExtra("resultCode", resultCode)
+                putExtra("data", data)
+            }
+            startForegroundService(captureIntent)
+            Log.d(TAG, "ScreenCaptureService started with projection data")
+        } else {
+            Log.w(TAG, "No projection data - resultCode=$resultCode, data=$data")
+        }
+
         return START_STICKY
     }
 

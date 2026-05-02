@@ -54,21 +54,22 @@ class OverlayService : Service() {
         Log.d(TAG, "OverlayService onStartCommand")
         startForeground(NOTIFICATION_ID, createNotification())
 
-        val resultCode = MainActivity.projectionResultCode
-        val data = MainActivity.projectionData
+        // Small delay to ensure MainActivity has saved the data
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            val resultCode = MainActivity.projectionResultCode
+            val data = MainActivity.projectionData
 
-        Toast.makeText(this, "OverlayService started - resultCode=$resultCode", Toast.LENGTH_SHORT).show()
-        Log.d(TAG, "Got resultCode=$resultCode, data=$data")
+            Toast.makeText(this, "OverlayService: resultCode=$resultCode data=${data != null}", Toast.LENGTH_LONG).show()
 
-        if (resultCode != -1 && data != null) {
-            Toast.makeText(this, "Starting ScreenCaptureService...", Toast.LENGTH_SHORT).show()
-            val captureIntent = Intent(this, ScreenCaptureService::class.java)
-            startForegroundService(captureIntent)
-            Log.d(TAG, "ScreenCaptureService started")
-        } else {
-            Toast.makeText(this, "ERROR: No projection data!", Toast.LENGTH_LONG).show()
-            Log.w(TAG, "No projection data received")
-        }
+            if (resultCode != -1 && data != null) {
+                Toast.makeText(this, "Starting ScreenCaptureService...", Toast.LENGTH_SHORT).show()
+                val captureIntent = Intent(this, ScreenCaptureService::class.java)
+                captureIntent.putExtra("start", true)
+                startForegroundService(captureIntent)
+            } else {
+                Toast.makeText(this, "ERROR: resultCode=$resultCode data=$data", Toast.LENGTH_LONG).show()
+            }
+        }, 500) // 500ms delay
 
         return START_STICKY
     }

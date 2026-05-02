@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity() {
                     projectionResultCode = resultCode
                     projectionData = data
                     val intent = Intent(this, OverlayService::class.java)
+                    intent.putExtra("start", true)
                     startForegroundService(intent)
                     updateButtonStates()
                     Toast.makeText(this, "Overlay started", Toast.LENGTH_SHORT).show()

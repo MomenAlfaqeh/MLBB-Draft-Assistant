@@ -1,6 +1,9 @@
 package com.mlbb.draftassistant
 
-import android.content.Context
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
@@ -9,18 +12,16 @@ import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.Handler
-import android.os.Looper
+import android.os.Build
+import android.os.IBinder
 import android.util.Log
 
-/**
- * Handles MediaProjection screen capture.
- * Used as a plain class (not a Service) - initialized and controlled by OverlayService.
- */
-class ScreenCaptureService {
+class ScreenCaptureService : Service() {
 
     companion object {
         private const val TAG = "MLBBScreenCapture"
+        private const val CHANNEL_ID = "MLBBOverlayChannel"
+        private const val NOTIFICATION_ID = 2
         private const val VIRTUAL_DISPLAY_NAME = "MLBB_ScreenCapture"
     }
 
@@ -28,21 +29,44 @@ class ScreenCaptureService {
     private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
 
-    private val handler = Handler(Looper.getMainLooper())
     private var screenWidth = 0
     private var screenHeight = 0
     private var screenDensity = 0
 
-    // Latest captured bitmap (thread-safe read from OverlayService)
     @Volatile private var latestBitmap: Bitmap? = null
 
-    fun startCapture(context: Context, resultCode: Int, data: Intent) {
-        Log.d(TAG, "Starting screen capture")
-        val manager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        mediaProjection = manager.getMediaProjection(resultCode, data)
-        mediaProjection?.registerCallback(mediaProjectionCallback, handler)
+    override fun onCreate() {
+        super.onCreate()
+        Log.d(TAG, "ScreenCaptureService created")
+        createNotificationChannel()
+    }
 
-        val metrics = context.resources.displayMetrics
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "ScreenCaptureService started")
+        startForeground(NOTIFICATION_ID, createNotification())
+
+        val resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
+        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableExtra("data", Intent::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent?.getParcelableExtra<Intent>("data")
+        }
+
+        if (resultCode != -1 && data != null) {
+            Log.d(TAG, "Creating MediaProjection with resultCode=$resultCode")
+            startCapturing(resultCode, data)
+        }
+
+        return START_STICKY
+    }
+
+    private fun startCapturing(resultCode: Int, data: Intent) {
+        val mediaProjectionManager = getSystemService(MediaProjectionManager::class.java)
+        mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
+        mediaProjection?.registerCallback(mediaProjectionCallback, null)
+
+        val metrics = resources.displayMetrics
         screenWidth = metrics.widthPixels
         screenHeight = metrics.heightPixels
         screenDensity = metrics.densityDpi
@@ -52,6 +76,26 @@ class ScreenCaptureService {
         createVirtualDisplay()
         startImageReaderListener()
     }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "MLBB Screen Capture",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply { description = "Captures screen for draft analysis" }
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+                .createNotificationChannel(channel)
+        }
+    }
+
+    private fun createNotification(): Notification =
+        androidx.core.app.NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("MLBB Screen Capture")
+            .setContentText("Capturing screen...")
+            .setSmallIcon(android.R.drawable.ic_menu_info_details)
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_LOW)
+            .build()
 
     private fun setupImageReader() {
         imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 2)
@@ -66,7 +110,7 @@ class ScreenCaptureService {
             DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
             imageReader?.surface,
             null,
-            handler
+            null
         )
     }
 
@@ -78,16 +122,16 @@ class ScreenCaptureService {
                 if (bitmap != null) {
                     latestBitmap?.recycle()
                     latestBitmap = bitmap
+                    ScreenCaptureRepository.updateBitmap(bitmap)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Image listener error: ${e.message}")
             } finally {
                 image.close()
             }
-        }, handler)
+        }, null)
     }
 
-    /** Returns the most recently captured screen bitmap, or null if none yet */
     fun getLatestBitmap(): Bitmap? = latestBitmap?.copy(latestBitmap!!.config!!, false)
 
     private fun imageToBitmap(image: android.media.Image): Bitmap? {
@@ -124,4 +168,12 @@ class ScreenCaptureService {
             stopCapture()
         }
     }
+
+    override fun onDestroy() {
+        Log.d(TAG, "ScreenCaptureService destroyed")
+        stopCapture()
+        super.onDestroy()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? = null
 }

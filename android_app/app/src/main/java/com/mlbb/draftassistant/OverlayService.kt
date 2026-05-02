@@ -39,7 +39,6 @@ class OverlayService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var apiClient: ApiClient
-    private var screenCaptureService: ScreenCaptureService? = null
 
     // Current draft state (updated from Vision Engine)
     private var currentAllyPicks = mutableListOf<String>()
@@ -66,8 +65,12 @@ class OverlayService : Service() {
         }
 
         if (resultCode != -1 && data != null) {
-            Log.d(TAG, "Starting screen capture with resultCode=$resultCode")
-            startScreenCapture(resultCode, data)
+            Log.d(TAG, "Starting screen capture service with projection data")
+            val captureIntent = Intent(this, ScreenCaptureService::class.java).apply {
+                putExtra("resultCode", resultCode)
+                putExtra("data", data)
+            }
+            startForegroundService(captureIntent)
         }
 
         startUpdateLoop()
@@ -141,12 +144,6 @@ class OverlayService : Service() {
         }
     }
 
-    private fun startScreenCapture(resultCode: Int, data: Intent) {
-        Log.d(TAG, "Starting screen capture")
-        screenCaptureService = ScreenCaptureService()
-        screenCaptureService?.startCapture(this@OverlayService, resultCode, data)
-    }
-
     private fun startUpdateLoop() {
         Log.d(TAG, "Starting update loop every ${UPDATE_INTERVAL_MS}ms")
         serviceScope.launch {
@@ -167,7 +164,7 @@ class OverlayService : Service() {
         withContext(Dispatchers.IO) {
             try {
                 // Step 1: Capture & analyze screen
-                val bitmap = screenCaptureService?.getLatestBitmap()
+                val bitmap = ScreenCaptureRepository.getLatestBitmap()
                 if (bitmap != null) {
                     val base64 = bitmapToBase64(bitmap)
                     val draftState = apiClient.analyzeScreenshot(base64)
@@ -238,7 +235,7 @@ class OverlayService : Service() {
         Log.d(TAG, "OverlayService destroyed")
         super.onDestroy()
         serviceScope.cancel()
-        screenCaptureService?.stopCapture()
+        ScreenCaptureRepository.clear()
         if (::windowManager.isInitialized && ::overlayView.isInitialized) {
             windowManager.removeView(overlayView)
         }

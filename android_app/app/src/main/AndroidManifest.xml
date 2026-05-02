@@ -42,9 +42,15 @@
             </intent-filter>
         </activity>
 
-        <!-- Overlay + Screen capture service -->
+        <!-- Overlay service -->
         <service
             android:name=".OverlayService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+        <!-- Screen capture service -->
+        <service
+            android:name=".ScreenCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
 

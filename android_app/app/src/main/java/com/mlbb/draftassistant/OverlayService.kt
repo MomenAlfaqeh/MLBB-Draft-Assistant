@@ -19,7 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 
-class OverlayService : Service(), DraftUpdateListener {
+class OverlayService : Service() {
 
     companion object {
         private const val TAG = "MLBBOverlay"
@@ -34,21 +34,20 @@ class OverlayService : Service(), DraftUpdateListener {
     private var initialTouchX = 0f
     private var initialTouchY = 0f
 
+    private val updateCallback: () -> Unit = {
+        val winText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
+        val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
+        winText.text = "Win: ${DraftUpdateManager.winProbability.toInt()}%"
+        laneText.text = DraftUpdateManager.recommendations
+    }
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "OverlayService created")
         createNotificationChannel()
         setupOverlay()
-        DraftUpdateManager.registerListener(this)
-        Log.d(TAG, "DraftUpdateListener registered")
-    }
-
-    override fun onDraftUpdate(winProbability: Double, recommendations: String) {
-        Log.d(TAG, "onDraftUpdate called - win=$winProbability")
-        val winText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
-        val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
-        winText.text = "Win: ${winProbability.toInt()}%"
-        laneText.text = recommendations
+        DraftUpdateManager.addListener(updateCallback)
+        Log.d(TAG, "DraftUpdateManager listener registered")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -148,7 +147,7 @@ class OverlayService : Service(), DraftUpdateListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        DraftUpdateManager.unregisterListener(this)
+        DraftUpdateManager.removeListener(updateCallback)
         if (::windowManager.isInitialized && ::overlayView.isInitialized) {
             windowManager.removeView(overlayView)
         }

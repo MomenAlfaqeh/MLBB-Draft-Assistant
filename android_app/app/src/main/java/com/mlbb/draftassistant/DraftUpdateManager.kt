@@ -2,44 +2,26 @@ package com.mlbb.draftassistant
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-
-interface DraftUpdateListener {
-    fun onDraftUpdate(winProbability: Double, recommendations: String)
-}
 
 object DraftUpdateManager {
-    private const val TAG = "DraftUpdateManager"
-    private val listeners = mutableListOf<DraftUpdateListener>()
+    var winProbability: Double = 0.0
+    var recommendations: String = "Analyzing draft..."
+    private val listeners = mutableListOf<() -> Unit>()
     private val handler = Handler(Looper.getMainLooper())
 
-    fun registerListener(listener: DraftUpdateListener) {
-        synchronized(listeners) {
-            listeners.add(listener)
-            Log.d(TAG, "Listener registered, total listeners: ${listeners.size}")
-        }
+    fun addListener(callback: () -> Unit) {
+        listeners.add(callback)
     }
 
-    fun unregisterListener(listener: DraftUpdateListener) {
-        synchronized(listeners) {
-            listeners.remove(listener)
-            Log.d(TAG, "Listener unregistered, total listeners: ${listeners.size}")
-        }
+    fun removeListener(callback: () -> Unit) {
+        listeners.remove(callback)
     }
 
-    fun notifyUpdate(winProbability: Double, recommendations: String) {
-        synchronized(listeners) {
-            Log.d(TAG, "Notifying ${listeners.size} listeners: win=$winProbability")
-            // Run on main thread since listeners will update UI
-            handler.post {
-                listeners.forEach { listener ->
-                    try {
-                        listener.onDraftUpdate(winProbability, recommendations)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error notifying listener: ${e.message}")
-                    }
-                }
-            }
+    fun notifyUpdate(win: Double, recs: String) {
+        winProbability = win
+        recommendations = recs
+        handler.post {
+            listeners.forEach { it() }
         }
     }
 }

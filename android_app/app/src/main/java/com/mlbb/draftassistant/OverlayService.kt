@@ -44,33 +44,11 @@ class OverlayService : Service(), DraftUpdateListener {
     }
 
     override fun onDraftUpdate(winProbability: Double, recommendations: String) {
-        Log.d(TAG, "DRAFT_UPDATE received")
-        Log.d(TAG, "Updating UI with: win_probability=$winProbability, recommendations=$recommendations")
-
-        val winRateText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
+        Log.d(TAG, "onDraftUpdate called - win=$winProbability")
+        val winText = overlayView.findViewById<TextView>(R.id.tv_win_probability)
         val laneText = overlayView.findViewById<TextView>(R.id.tv_lane_recommendations)
-
-        winRateText.text = "Win: ${winProbability.toInt()}%"
-
-        try {
-            val json = JSONObject(recommendations)
-            val sb = StringBuilder()
-            val laneOrder = listOf("EXP", "Jungle", "Mid", "Gold", "Roam")
-            for (lane in laneOrder) {
-                val heroes = json.optJSONArray(lane) ?: json.optJSONArray(lane.lowercase()) ?: continue
-                if (heroes.length() == 0) continue
-                val top = (0 until minOf(2, heroes.length())).map { heroes.getJSONObject(it) }
-                val names = top.joinToString(" / ") { it.getString("name") }
-                val pct = top.firstOrNull()?.let {
-                    "${(it.optDouble("total_score", 0.0) * 100).toInt()}%"
-                } ?: ""
-                sb.appendLine("[$lane] $names  $pct")
-            }
-            laneText.text = sb.toString().trimEnd()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error parsing recommendations: ${e.message}")
-            laneText.text = "Analyzing draft..."
-        }
+        winText.text = "Win: ${winProbability.toInt()}%"
+        laneText.text = recommendations
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

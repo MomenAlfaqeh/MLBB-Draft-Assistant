@@ -7,6 +7,7 @@ import android.app.Service
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
+import androidx.core.app.NotificationCompat
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
@@ -102,7 +103,7 @@ class ScreenCaptureService : Service() {
     }
 
     private fun setupImageReader() {
-        imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGB_8888, 2)
+        imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 2)
     }
 
     private fun createVirtualDisplay() {

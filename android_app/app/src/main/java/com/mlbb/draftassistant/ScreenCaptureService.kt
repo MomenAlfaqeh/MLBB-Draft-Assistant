@@ -62,7 +62,7 @@ class ScreenCaptureService : Service() {
 
         Toast.makeText(this, "ScreenCaptureService started!", Toast.LENGTH_SHORT).show()
 
-        DraftUpdateManager.notifyUpdate(55.0, "{\"EXP\":[],\"Jungle\":[],\"Mid\":[],\"Gold\":[],\"Roam\":[]}")
+        DraftUpdateManager.notifyUpdate(55.0, """{"EXP":[],"Jungle":[],"Mid":[],"Gold":[],"Roam":[]}""")
         Toast.makeText(this, "Test: Win=55% should appear now", Toast.LENGTH_SHORT).show()
         Log.d(TAG, "Test update sent - win_probability=55.0")
 

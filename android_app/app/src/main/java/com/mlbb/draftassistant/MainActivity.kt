@@ -1,22 +1,16 @@
 package com.mlbb.draftassistant
 
-import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
-
     companion object {
         private const val TAG = "MLBB"
         private const val OVERLAY_PERMISSION_REQUEST = 1001
@@ -34,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mediaProjectionManager = getSystemService(MediaProjectionManager::class.java)
-
         btnStartOverlay = findViewById(R.id.btn_start_overlay)
         btnStopOverlay = findViewById(R.id.btn_stop_overlay)
 
@@ -43,15 +36,12 @@ class MainActivity : AppCompatActivity() {
             when {
                 !Settings.canDrawOverlays(this) -> {
                     Toast.makeText(this, "Checking overlay permission...", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "Requesting overlay permission")
                     startActivityForResult(
                         Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")),
                         OVERLAY_PERMISSION_REQUEST
                     )
                 }
                 else -> {
-                    Toast.makeText(this, "Overlay permission OK - requesting screen capture...", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "Requesting screen capture permission")
                     startActivityForResult(
                         mediaProjectionManager.createScreenCaptureIntent(),
                         SCREEN_CAPTURE_REQUEST
@@ -62,61 +52,52 @@ class MainActivity : AppCompatActivity() {
 
         btnStopOverlay.setOnClickListener {
             Log.d(TAG, "Button clicked - Stop Overlay")
-            stopOverlayService()
+            stopServices()
         }
-
         updateButtonStates()
-        Log.d(TAG, "MainActivity created")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "onActivityResult: requestCode=$requestCode, resultCode=$resultCode")
-
         when (requestCode) {
             OVERLAY_PERMISSION_REQUEST -> {
                 if (Settings.canDrawOverlays(this)) {
-                    Toast.makeText(this, "Overlay permission OK - requesting screen capture...", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "Overlay permission granted - requesting screen capture")
                     startActivityForResult(
                         mediaProjectionManager.createScreenCaptureIntent(),
                         SCREEN_CAPTURE_REQUEST
                     )
                 } else {
                     Toast.makeText(this, "Overlay permission DENIED", Toast.LENGTH_SHORT).show()
-                    Log.w(TAG, "Overlay permission denied by user")
                 }
             }
             SCREEN_CAPTURE_REQUEST -> {
                 if (resultCode == RESULT_OK && data != null) {
-                    Toast.makeText(this, "Screen capture granted! Starting overlay...", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "Screen capture permission granted - starting overlay service")
+                    Toast.makeText(this, "Screen capture granted! Starting services...", Toast.LENGTH_SHORT).show()
                     projectionResultCode = resultCode
                     projectionData = data
-                    val intent = Intent(this, OverlayService::class.java)
-                    intent.putExtra("start", true)
-                    startForegroundService(intent)
+                    
+                    // التعديل الهام: تشغيل الخدمتين معاً (النافذة الشفافة والتصوير)
+                    startForegroundService(Intent(this, OverlayService::class.java).apply { putExtra("start", true) })
+                    startForegroundService(Intent(this, ScreenCaptureService::class.java))
+                    
                     updateButtonStates()
-                    Toast.makeText(this, "Overlay started", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Screen capture DENIED", Toast.LENGTH_SHORT).show()
-                    Log.w(TAG, "Screen capture permission denied by user")
                 }
             }
         }
     }
 
-    private fun stopOverlayService() {
-        Log.d(TAG, "Stopping OverlayService")
-        val serviceIntent = Intent(this, OverlayService::class.java)
-        stopService(serviceIntent)
+    private fun stopServices() {
+        Log.d(TAG, "Stopping Services")
+        stopService(Intent(this, OverlayService::class.java))
+        stopService(Intent(this, ScreenCaptureService::class.java)) // التعديل: إيقاف خدمة التصوير
         updateButtonStates()
-        Toast.makeText(this, "Overlay stopped", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Overlay & Capture stopped", Toast.LENGTH_SHORT).show()
     }
 
     private fun updateButtonStates() {
         btnStartOverlay.isEnabled = true
         btnStopOverlay.isEnabled = true
-        Log.d(TAG, "Button states updated")
     }
 }

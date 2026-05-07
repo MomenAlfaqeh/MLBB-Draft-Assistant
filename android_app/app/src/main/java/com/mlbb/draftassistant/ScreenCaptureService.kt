@@ -5,9 +5,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
-import androidx.core.app.NotificationCompat
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
@@ -18,6 +18,7 @@ import android.os.IBinder
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -27,7 +28,6 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
 class ScreenCaptureService : Service() {
-
     companion object {
         private const val TAG = "MLBBScreenCapture"
         private const val CHANNEL_ID = "MLBBOverlayChannel"
@@ -44,29 +44,26 @@ class ScreenCaptureService : Service() {
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
-
     private var screenWidth = 0
     private var screenHeight = 0
     private var screenDensity = 0
 
+    // التعديل: نحتفظ بالنص بدلاً من الصورة لمنع الانهيار (Crash)
     @Volatile
-    private var latestBitmap: Bitmap? = null
+    private var latestBase64Image: String? = null
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "ScreenCaptureService created")
         createNotificationChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "ScreenCaptureService started")
-        startForeground(NOTIFICATION_ID, createNotification())
-
-        Toast.makeText(this, "ScreenCaptureService started!", Toast.LENGTH_SHORT).show()
-
-        DraftUpdateManager.notifyUpdate(55.0, """{"EXP":[],"Jungle":[],"Mid":[],"Gold":[],"Roam":[]}""")
-        Toast.makeText(this, "Test: Win=55% should appear now", Toast.LENGTH_SHORT).show()
-        Log.d(TAG, "Test update sent - win_probability=55.0")
+        // التعديل: تحديد نوع الخدمة صراحة لتعمل على Android 14 بدون انهيار
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+        } else {
+            startForeground(NOTIFICATION_ID, createNotification())
+        }
 
         val resultCode = MainActivity.projectionResultCode
         val data = MainActivity.projectionData
@@ -74,10 +71,7 @@ class ScreenCaptureService : Service() {
         if (resultCode != -1 && data != null) {
             startCapturing(resultCode, data)
             startPeriodicCaptureAndApiCall()
-        } else {
-            Log.w(TAG, "No valid projection data received - resultCode=$resultCode, data=$data")
         }
-
         return START_STICKY
     }
 
@@ -85,14 +79,13 @@ class ScreenCaptureService : Service() {
         val mediaProjectionManager = getSystemService(MediaProjectionManager::class.java)
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
         mediaProjection?.registerCallback(mediaProjectionCallback, null)
-        Log.d(TAG, "MediaProjection created")
 
         val metrics = resources.displayMetrics
-        screenWidth = metrics.widthPixels
-        screenHeight = metrics.heightPixels
+        // تصغير الدقة قليلاً لتسريع الإرسال وتقليل استهلاك الإنترنت
+        screenWidth = metrics.widthPixels / 2
+        screenHeight = metrics.heightPixels / 2
         screenDensity = metrics.densityDpi
 
-        Log.d(TAG, "Screen: ${screenWidth}x${screenHeight} @ ${screenDensity}dpi")
         setupImageReader()
         createVirtualDisplay()
         startImageReaderListener()
@@ -104,14 +97,9 @@ class ScreenCaptureService : Service() {
 
     private fun createVirtualDisplay() {
         virtualDisplay = mediaProjection?.createVirtualDisplay(
-            VIRTUAL_DISPLAY_NAME,
-            screenWidth,
-            screenHeight,
-            screenDensity,
+            VIRTUAL_DISPLAY_NAME, screenWidth, screenHeight, screenDensity,
             DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-            imageReader?.surface,
-            null,
-            null
+            imageReader?.surface, null, null
         )
     }
 
@@ -121,9 +109,9 @@ class ScreenCaptureService : Service() {
             try {
                 val bitmap = imageToBitmap(image)
                 if (bitmap != null) {
-                    latestBitmap?.recycle()
-                    latestBitmap = bitmap
-                    Log.d(TAG, "Screenshot captured, size: ${bitmap.byteCount} bytes")
+                    // التعديل: نقوم بتحويل الصورة فوراً ثم ندمر الـ Bitmap
+                    latestBase64Image = bitmapToBase64(bitmap)
+                    bitmap.recycle() 
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Image listener error: ${e.message}")
@@ -137,112 +125,81 @@ class ScreenCaptureService : Service() {
         serviceScope.launch {
             while (isActive) {
                 delay(CAPTURE_INTERVAL_MS)
-                val bitmap = latestBitmap ?: continue
-                val base64 = bitmapToBase64(bitmap)
-                if (base64.isEmpty()) continue
+                val base64 = latestBase64Image ?: continue
 
                 try {
-                    Log.d(TAG, "Sending to API...")
                     val jsonBody = JSONObject().apply {
                         put("screenshot_b64", base64)
                     }.toString()
-                    val requestBody = jsonBody.toRequestBody(mediaType)
-                    val request = Request.Builder()
-                        .url(API_URL)
-                        .post(requestBody)
-                        .build()
 
+                    val requestBody = jsonBody.toRequestBody(mediaType)
+                    val request = Request.Builder().url(API_URL).post(requestBody).build()
                     val response = okHttpClient.newCall(request).execute()
+
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
-                        Log.d(TAG, "API response: $responseBody")
                         if (responseBody != null) {
                             val jsonResponse = JSONObject(responseBody)
                             val winProbability = jsonResponse.optDouble("win_probability", 0.0)
                             val recommendations = jsonResponse.optString("recommendations", "{}")
-
+                            
+                            // تحديث الواجهة الشفافة
                             DraftUpdateManager.notifyUpdate(winProbability * 100, recommendations)
-                            Log.d(TAG, "DraftUpdateManager notified - win_probability=${winProbability * 100}")
                         }
-                    } else {
-                        Log.e(TAG, "API call failed: ${response.code} ${response.message}")
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error during capture/API call: ${e.message}")
+                    Log.e(TAG, "API call error: ${e.message}")
                 }
             }
         }
     }
 
     private fun bitmapToBase64(bitmap: Bitmap): String {
-        return try {
-            val stream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream)
-            Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
-        } catch (e: Exception) {
-            Log.e(TAG, "Base64 conversion error: ${e.message}")
-            ""
-        }
+        val stream = ByteArrayOutputStream()
+        // رفع الضغط لـ 50 لتسريع الرفع للسيرفر بشكل كبير (70 كبيرة نسبياً)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream)
+        return Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
     }
 
     private fun imageToBitmap(image: android.media.Image): Bitmap? {
-        return try {
-            val plane = image.planes[0]
-            val pixelStride = plane.pixelStride
-            val rowStride = plane.rowStride
-            val rowPadding = rowStride - pixelStride * image.width
-            val bitmap = Bitmap.createBitmap(
-                image.width + rowPadding / pixelStride,
-                image.height,
-                Bitmap.Config.ARGB_8888
-            )
-            bitmap.copyPixelsFromBuffer(plane.buffer)
-            bitmap
-        } catch (e: Exception) {
-            Log.e(TAG, "Bitmap conversion error: ${e.message}")
-            null
-        }
+        val plane = image.planes[0]
+        val pixelStride = plane.pixelStride
+        val rowStride = plane.rowStride
+        val rowPadding = rowStride - pixelStride * image.width
+        val bitmap = Bitmap.createBitmap(
+            image.width + rowPadding / pixelStride,
+            image.height,
+            Bitmap.Config.ARGB_8888
+        )
+        bitmap.copyPixelsFromBuffer(plane.buffer)
+        return bitmap
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "MLBB Screen Capture",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply { description = "Captures screen for draft analysis" }
-            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
-                .createNotificationChannel(channel)
+            val channel = NotificationChannel(CHANNEL_ID, "Screen Capture", NotificationManager.IMPORTANCE_LOW)
+            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
     }
 
     private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("MLBB Screen Capture")
-            .setContentText("Capturing screen...")
+            .setContentTitle("MLBB Capture Active")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }
 
     private fun stopCapture() {
-        Log.d(TAG, "Stopping screen capture")
-        latestBitmap?.recycle()
-        latestBitmap = null
         virtualDisplay?.release()
         mediaProjection?.stop()
         imageReader?.close()
     }
 
     private val mediaProjectionCallback = object : MediaProjection.Callback() {
-        override fun onStop() {
-            Log.d(TAG, "MediaProjection stopped externally")
-            stopCapture()
-        }
+        override fun onStop() { stopCapture() }
     }
 
     override fun onDestroy() {
-        Log.d(TAG, "ScreenCaptureService destroyed")
         serviceScope.cancel()
         stopCapture()
         super.onDestroy()

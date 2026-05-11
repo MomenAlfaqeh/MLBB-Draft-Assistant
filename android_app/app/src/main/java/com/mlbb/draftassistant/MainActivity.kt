@@ -15,8 +15,6 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MLBB"
         private const val OVERLAY_PERMISSION_REQUEST = 1001
         private const val SCREEN_CAPTURE_REQUEST = 1002
-        var projectionResultCode: Int = -1
-        var projectionData: Intent? = null
     }
 
     private lateinit var btnStartOverlay: Button
@@ -73,13 +71,16 @@ class MainActivity : AppCompatActivity() {
             SCREEN_CAPTURE_REQUEST -> {
                 if (resultCode == RESULT_OK && data != null) {
                     Toast.makeText(this, "Screen capture granted! Starting services...", Toast.LENGTH_SHORT).show()
-                    projectionResultCode = resultCode
-                    projectionData = data
-                    
-                    // التعديل الهام: تشغيل الخدمتين معاً (النافذة الشفافة والتصوير)
+
+                    // Start Overlay Service
                     startForegroundService(Intent(this, OverlayService::class.java).apply { putExtra("start", true) })
-                    startForegroundService(Intent(this, ScreenCaptureService::class.java))
-                    
+
+                    // Start Screen Capture Service with Intent extras
+                    val captureIntent = Intent(this, ScreenCaptureService::class.java).apply {
+                        putExtra("RESULT_CODE", resultCode)
+                        putExtra("DATA", data)
+                    }
+                    startForegroundService(captureIntent)
                     updateButtonStates()
                 } else {
                     Toast.makeText(this, "Screen capture DENIED", Toast.LENGTH_SHORT).show()

@@ -65,14 +65,25 @@ class ScreenCaptureService : Service() {
             startForeground(NOTIFICATION_ID, createNotification())
         }
 
-        val resultCode = MainActivity.projectionResultCode
-        val data = MainActivity.projectionData
+        val resultCode = intent?.getIntExtra("RESULT_CODE", -1) ?: -1
+        val data: Intent? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableExtra("DATA", Intent::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent?.getParcelableExtra("DATA")
+        }
 
         if (resultCode != -1 && data != null) {
+            Toast.makeText(this, "Capture Started Successfully!", Toast.LENGTH_SHORT).show()
             startCapturing(resultCode, data)
             startPeriodicCaptureAndApiCall()
+        } else {
+            Log.e(TAG, "ERROR: No projection data received in Service!")
+            Toast.makeText(this, "ERROR: Cannot start capture. Please try again.", Toast.LENGTH_LONG).show()
+            stopSelf()
         }
-        return START_STICKY
+
+        return START_NOT_STICKY
     }
 
     private fun startCapturing(resultCode: Int, data: Intent) {

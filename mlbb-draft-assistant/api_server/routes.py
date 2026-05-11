@@ -153,15 +153,61 @@ async def draft_update(request: DraftRequest):
             detail=f"Failed to generate recommendations: {str(e)}"
         )
 
-@router.post("/analyze", response_model=List[HeroResponse])
+@router.post("/analyze")
 async def analyze_screenshot(request: AnalyzeRequest):
     try:
-        img_bytes = hero_detector.decode_base64_image(request.screenshot_b64)
-        if img_bytes is None or img_bytes.size == 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid image data"
-            )
+        # 1. Detect heroes from the screenshot using the Vision Engine
+        draft_result = hero_detector.detect_draft(request.screenshot_b64)
+        
+        # 2. Clean up the lists (remove None values if a slot is empty)
+        ally_picks =[h for h in draft_result.get("ally_picks", []) if h is not None]
+        enemy_picks = [h for h in draft_result.get("enemy_picks", []) if h is not None]
+        
+        print(f"🎯 Vision Detected - Allies: {ally_picks} | Enemies: {enemy_picks}")
+
+        # 3. Get recommendations and win probability from the Scoring Engine
+        db, all_heroes = get_db()
+        
+        # Get the top 1 recommendation per lane to fit the Android UI
+        lane_recs = get_recommendations_by_lane(
+            available_heroes=all_heroes,
+            enemy_picks=enemy_picks,
+            ally_picks=ally_picks,
+            top_n=1,
+            db=db
+        )
+        
+        # Get overall win probability
+        _, matchup_prob = get_top_recommendations(
+            available_heroes=all_heroes,
+            enemy_picks=enemy_picks,
+            ally_picks=ally_picks,
+            top_n=1, 
+            db=db
+        )
+
+        # 4. Format the recommendations string with newlines for the Android Overlay
+        recs_dict = lane_recs.get("lane_recommendations", {})
+        recs_text =[]
+        for lane, picks in recs_dict.items():
+            if picks:
+                top_hero = picks[0].name
+                recs_text.append(f"{lane.upper()}: {top_hero}")
+        
+        final_recs_string = "\n".join(recs_text) if recs_text else "Awaiting draft..."
+
+        # 5. Return exact JSON format expected by the Android app
+        return {
+            "win_probability": matchup_prob,
+            "recommendations": final_recs_string
+        }
+
+    except Exception as e:
+        print(f"Analysis error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to analyze screenshot: {str(e)}"
+        )
 
         detections = {"ally": [], "enemy": []}
 

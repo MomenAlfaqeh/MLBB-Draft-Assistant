@@ -52,19 +52,6 @@ class OverlayService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(NOTIFICATION_ID, createNotification())
-        
-        val resultCode = MainActivity.projectionResultCode
-        val data = MainActivity.projectionData
-        
-        // Show exactly what we received
-        android.os.Handler(android.os.Looper.getMainLooper()).post {
-            Toast.makeText(
-                this,
-                "RC=${resultCode} | Data=${if(data != null) "OK" else "NULL"}",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-        
         return START_STICKY
     }
 

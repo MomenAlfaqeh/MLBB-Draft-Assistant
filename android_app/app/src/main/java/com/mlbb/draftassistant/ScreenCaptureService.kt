@@ -58,14 +58,14 @@ class ScreenCaptureService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // التعديل: تحديد نوع الخدمة صراحة لتعمل على Android 14 بدون انهيار
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIFICATION_ID, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+            startForeground(NOTIFICATION_ID, createNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
         } else {
             startForeground(NOTIFICATION_ID, createNotification())
         }
 
-        val resultCode = intent?.getIntExtra("RESULT_CODE", -1) ?: -1
+        val resultCode = intent?.getIntExtra("RESULT_CODE", android.app.Activity.RESULT_CANCELED) ?: android.app.Activity.RESULT_CANCELED
+        
         val data: Intent? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent?.getParcelableExtra("DATA", Intent::class.java)
         } else {
@@ -73,17 +73,17 @@ class ScreenCaptureService : Service() {
             intent?.getParcelableExtra("DATA")
         }
 
-        if (resultCode != -1 && data != null) {
+        if (resultCode == android.app.Activity.RESULT_OK && data != null) {
             Toast.makeText(this, "Capture Started Successfully!", Toast.LENGTH_SHORT).show()
             startCapturing(resultCode, data)
             startPeriodicCaptureAndApiCall()
         } else {
-            Log.e(TAG, "ERROR: No projection data received in Service!")
+            Log.e(TAG, "ERROR: No projection data received in Service! ResultCode: $resultCode")
             Toast.makeText(this, "ERROR: Cannot start capture. Please try again.", Toast.LENGTH_LONG).show()
             stopSelf()
         }
-
-        return START_NOT_STICKY
+        
+        return START_NOT_STICKY 
     }
 
     private fun startCapturing(resultCode: Int, data: Intent) {
